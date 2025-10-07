@@ -1,0 +1,104 @@
+{% load static %}
+<script src="{% static 'landing/js/script.js' %}" defer></script>
+    <script src="{% static 'landing/js/updatecart.js' %}" defer></script>
+<header class="main-header">
+        <!-- Left side of the header: Logo -->
+        <div class="header-left">
+            <a href="{% url 'home' %}" class="logo">FS Club</a>
+        </div>
+
+        <!-- Center navigation links (visible on desktop) -->
+        <nav class="header-center" aria-label="Main navigation">
+            <a href="{% url 'shop_by_season' %}">Shop By Season</a>
+                <a href="{% url 'high_vibes' %}">High Vibes</a>
+            <a href="{% url 'low_vibes' %}">Low Vibes</a>
+            <a href="{% url 'accessories' %}">Accessories</a>
+        </nav>
+
+        <!-- Right side of the header -->
+        <div class="header-right">
+            {% if user.is_authenticated %}
+            <!-- ============================ -->
+            <!-- When the user IS logged in -->
+            <!-- ============================ -->
+
+            <!-- Wishlist icon (desktop only) -->
+            <!-- Clicking this could open a wishlist page or modal -->
+            <a href="{% url 'wishlist' %}" class="wishlist-icon" aria-label="View Wishlist">
+                <i class="fas fa-heart"></i>
+            </a>
+
+            <!-- Cart icon (desktop only) -->
+            <a href="{% url 'cart' %}" class="cart-icon" aria-label="View Cart">
+                <i class="fas fa-shopping-cart"></i>
+            </a>
+
+
+
+            <!-- Desktop Profile Dropdown -->
+            <div class="profile-dropdown">
+                <!-- Button to toggle dropdown -->
+                <button class="profile-icon" id="profile-btn" aria-label="Profile">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+
+                <!-- Hidden dropdown menu (shows on click with JS) -->
+                <div class="dropdown-menu" id="profile-menu">
+                    <!-- Show logged-in user's name and email -->
+                    <p><strong>{{ user.username }}</strong></p>
+                    <p>{{ user.email }}</p>
+                    <!-- Logout button -->
+                    <a class="logout" href="{% url 'logout' %}">Logout</a>
+                </div>
+            </div>
+            {% else %}
+            <!-- ============================ -->
+            <!-- When the user is NOT logged in -->
+            <!-- ============================ -->
+
+            <!-- Show Signup/Login button instead of cart/wishlist/profile -->
+            <button class="signup-button login">Signup/Login</button>
+            {% endif %}
+
+            <!-- Hamburger menu button (shows only on mobile) -->
+            <button class="menu-toggle" aria-label="Toggle navigation menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+
+        <!-- ================= MOBILE MENU ================= -->
+        <div class="mobile-menu">
+            <!-- Close button (X icon) -->
+            <button class="close-menu"><i class="fas fa-times"></i></button>
+
+            <!-- Navigation links inside mobile menu -->
+            <nav aria-label="Mobile navigation">
+
+                {% if user.is_authenticated %}
+                <!-- Mobile Profile Dropdown (only visible when logged in) -->
+                <div class="mobile-profile-dropdown">
+                    Hey! {{ user.username }}
+                </div>
+                {% endif %}
+
+                <!-- Main shop links (always visible) -->
+                <a href="{% url 'shop_by_season' %}">Shop By Season</a>
+                <a href="{% url 'high_vibes' %}">High Vibes</a>
+                <a href="{% url 'low_vibes' %}">Low Vibes</a>
+                <a href="{% url 'accessories' %}">Accessories</a>
+
+                {% if user.is_authenticated %}
+                <!-- Extra cart link for mobile (outside profile dropdown) -->
+                <a href="{% url 'wishlist' %}">Wishlist</a>
+                <a href="{% url 'cart' %}">Cart</a>
+                <a class="mobile-logout" href="{% url 'logout' %}">Logout</a>
+
+                {% else %}
+                <!-- Show login/signup links for guests -->
+                <a href="{% url 'login' %}" class="login">Login</a>
+                <a href="{% url 'signup' %}" class="signup">Signup</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
