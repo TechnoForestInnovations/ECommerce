@@ -1,0 +1,39 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}Profile{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand">Fs Club</div>
+      <nav>
+        {% if user.is_authenticated %}
+          <a href="{% url 'profile' %}">Profile</a>
+          <a href="{% url 'logout' %}">Logout</a>
+        {% else %}
+          <a href="{% url 'login' %}">Login</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% if messages %}
+      <ul class="messages">
+        {% for m in messages %}
+          <li class="{{ m.tags }}">{{ m }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer"><small>© Fs Club</small></footer>
+  <script src="{% static 'js/profile.js' %}"></script>
+</body>
+</html>

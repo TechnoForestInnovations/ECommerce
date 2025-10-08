@@ -1,0 +1,34 @@
+{% extends 'base/base.html' %}
+{% block title %}Profile - {{ user.get_full_name|default:user.username }}{% endblock %}
+
+{% block content %}
+<section class="wf-card">
+  <div class="wf-left">
+    <p class="welcome">Welcome</p>
+    <h1 class="acct-name">{{ user.get_full_name|default:user.username }}</h1>
+
+    <ul class="quick-links">
+      <li><a href="{% url 'profile_edit' %}#password">Change Password</a></li>
+      <li><a href="{% url 'profile_edit' %}#name">Change Email</a></li>
+      
+     
+
+    </ul>
+  </div>
+
+  <div class="wf-right">
+    <div class="avatar-wrap">
+      <img class="big-avatar" src="{{ user.profile.image.url }}" alt="avatar">
+      <a class="avatar-edit" href="{% url 'profile_edit' %}#image">Edit</a>
+    </div>
+
+    <div class="info-box">
+      <div class="info-inner">
+        <p class="phone">{{ user.profile.phone|default:"+91 0987654321" }}</p>
+        <p class="email">{{ user.email }}</p>
+        <a href="{% url 'profile_edit' %}" class="btn">Edit Profile</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'base/base.html' %}
+{% block title %}Edit Profile{% endblock %}
+{% block content %}
+<div class="edit-wf">
+  <div class="edit-left">
+    <img src="{{ user.profile.image.url }}" class="avatar-large" alt="avatar">
+    <a href="#image" class="avatar-editsmall">Edit</a>
+  </div>
+
+  <div class="edit-right">
+    <h2>Edit Profile</h2>
+    <div class="tabs">
+      <button class="tab active" data-target="name">Name (email)</button>
+      <button class="tab" data-target="password">Change Password</button>
+      <button class="tab" data-target="image">Upload Image</button>
+      <button class="tab" data-target="contact">Contact</button>
+    </div>
+
+    <div class="panels">
+      <div id="name" class="panel" style="display:block;">
+        <form method="post">
+          {% csrf_token %}
+          {{ name_form.as_p }}
+          <button name="save_name" class="btn">Save</button>
+        </form>
+      </div>
+
+      <div id="password" class="panel" style="display:none;">
+        <form method="post">
+          {% csrf_token %}
+          {{ pw_form.as_p }}
+          <button name="change_password" class="btn">Save</button>
+        </form>
+      </div>
+
+      <div id="image" class="panel" style="display:none;">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{ image_form.as_p }}
+          <button name="save_image" class="btn">Upload</button>
+        </form>
+      </div>
+
+      <div id="contact" class="panel" style="display:none;">
+        <form method="post">
+          {% csrf_token %}
+          {{ contact_form.as_p }}
+          <button name="save_contact" class="btn">Save</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Lightweight tabs
+  (function(){
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.panel');
+
+    function activate(name){
+      tabs.forEach(t=> t.classList.toggle('active', t.dataset.target === name));
+      panels.forEach(p=> p.style.display = (p.id === name) ? 'block' : 'none');
+    }
+
+    tabs.forEach(t=> t.addEventListener('click', ()=> activate(t.dataset.target)));
+
+    // open from hash if present
+    const h = location.hash.replace('#','');
+    if (h) {
+      const el = document.querySelector('.tab[data-target="'+h+'"]');
+      if (el) el.click();
+    }
+  })();
+</script>
+{% endblock %}
