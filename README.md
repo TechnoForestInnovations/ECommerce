@@ -1,3 +1,3 @@
 # ECommerce
-The repository contains the source& Infra code of E-Commerce application
+The repository contains the source& Infra code of E-Commerce application 
 
