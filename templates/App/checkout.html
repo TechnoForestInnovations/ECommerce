@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .checkout-container {
+            width: 40%;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.2);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #0f3460;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #16213e;
+        }
+    </style>
+</head>
+<body>
+
+<div class="checkout-container">
+    <h2>Checkout</h2>
+
+    <form action="{% url 'pay' %}" method="POST">
+        {% csrf_token %}
+
+        <label>Product Name</label>
+        <input type="text" name="product" placeholder="Enter Product Name" required>
+
+        <label>Amount (₹)</label>
+        <input type="number" name="amount" min="1" placeholder="Enter Amount" required>
+
+        <button type="submit">Proceed to Payment</button>
+    </form>
+</div>
+
+</body>
+</html>
