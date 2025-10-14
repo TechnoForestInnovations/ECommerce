@@ -1,7 +1,0 @@
-<!doctype html>
-<html><body>
-  <h1>Payment Failed</h1>
-  <p>Order ID: {% if order %}{{ order.id }}{% endif %}</p>
-  <p>Reason: {{ reason }}</p>
-  <a href="{% url 'shop:buy_now_form' %}">Try again</a>
-</body></html>
