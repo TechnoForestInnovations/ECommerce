@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'app',
     'wishlist',
     'accounts',
+    'cart',
+    'orders',
 ]
 
 MIDDLEWARE = [
@@ -145,3 +147,8 @@ EMAIL_HOST_USER = "sreeja.bommana1123@gmail.com"
 
 EMAIL_HOST_PASSWORD = "khwojtrimrhdgmeb"  # Google App password (16-char)
 FAST2SMS_API_KEY = "Sv9MoCRq6tuT4Fla1erpJxWdIOE08LNhfbBQwnyYKiXzm5cUV2Fg7zHGLd0k4T6b5tADsjcOW1fYwBXh"
+
+
+
+RAZORPAY_KEY_ID = "rzp_test_RV1zvVwry7Wo8O"
+RAZORPAY_KEY_SECRET = "9WED8m2OuuAJv8VpKGrurJ5M"

@@ -313,6 +313,7 @@
         </nav>
 
         <!-- Right side of the header -->
+
         <div class="header-right">
             {% if user.is_authenticated %}
             <!-- ============================ -->
@@ -326,7 +327,7 @@
             </a>
 
             <!-- Cart icon (desktop only) -->
-            <a href="" class="cart-icon" aria-label="View Cart">
+            <a href="/cart/cart/" class="cart-icon" aria-label="View Cart">
                 <i class="fas fa-shopping-cart"></i>
             </a>
 
@@ -343,6 +344,7 @@
                 <div class="dropdown-menu" id="profile-menu">
                     <!-- Show logged-in user's name and email -->
                     <p><strong>{{ user.username }}</strong></p>
+<!--                    <p><strong>{{ user.firstname }}</strong></p>-->
                     <p>{{ user.email }}</p>
                     <!-- Logout button -->
                     <a class="logout" href="/accounts/login/">Logout</a>
@@ -354,7 +356,7 @@
             <!-- ============================ -->
 
             <!-- Show Signup/Login button instead of cart/wishlist/profile -->
-            <button class="signup-button login">Signup/Login</button>
+          <a href="/accounts/login/"><button class="signup-button ">Signup/Login</button></a>
             {% endif %}
 
             <!-- Hamburger menu button (shows only on mobile) -->

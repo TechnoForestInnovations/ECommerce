@@ -46,7 +46,7 @@ body, .product-detail-container {
 }
 
 .thumbnail:hover, .thumbnail.active {
-    border: 4px solid #b8e994;  /* Light Green */
+    border: 4px solid #000;  /* Light Green */
 }
 
 .main-image-container {
@@ -60,7 +60,9 @@ body, .product-detail-container {
     object-fit: cover;
     border-radius: 2px;
 }
-
+.main-image:hover{
+        border: 2px solid #000;
+}
 /* ===== RIGHT SIDE DETAILS =====*/
 
 .details-section {
@@ -94,16 +96,30 @@ body, .product-detail-container {
     background: white;
     cursor: pointer;
 }
+.size-btn.selected {
+    background-color: #000;  /* Blue background for selected */
+    color: #fff;                 /* White text */
+    border-color: #fff;       /* Match border to background */
+}
 
 .size-btn:hover {
     border-color: #000;
 }
 
+
 .actions {
     margin-top: 20px;
 }
 
-.add-to-cart, .buy-now {
+
+#add-to-cart-btn{
+    padding: 12px 24px;
+    border: none;
+    margin-right: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+#add-to-cart-btn1 {
     padding: 12px 24px;
     border: none;
     margin-right: 10px;
@@ -111,12 +127,12 @@ body, .product-detail-container {
     font-size: 1rem;
 }
 
-.add-to-cart {
+#add-to-cart-btn{
     background: #333;
     color: white;
 }
 
-.buy-now {
+#add-to-cart-btn1 {
     background: white;
     border: 2px solid #333;
 }
@@ -409,20 +425,23 @@ body, .product-detail-container {
         <div class="price">₹ {{ product.price }}</div>
         <hr>
 
-        <!-- ✅ SIZE OPTIONS -->
-        <div class="size-options">
-            <strong>Choose Size:</strong>
-            <a href="javascript:void(0)" class="size-chart-link" onclick="openSizeChart()">Size Chart</a><br><br>
-            {% for stock in product.stocks.all %}
-            <button class="size-btn">{{ stock.size.code }}</button>
-            {% endfor %}
-        </div>
+    <!-- ✅ SIZE OPTIONS -->
+<div class="size-options">
+    <strong>Choose Size:</strong>
+    <a href="javascript:void(0)" class="size-chart-link" onclick="openSizeChart()">Size Chart</a><br><br>
+    {% for stock in product.stocks.all %}
+    <button class="size-btn" data-size="{{ stock.size.id }}">{{ stock.size.code }}</button>
+    {% endfor %}
+</div>
+        <div id="size-warning-msg" style="display:none; color:red; margin-top:10px;"></div>
 
-        <!-- ✅ ACTION BUTTONS -->
-        <div class="actions">
-            <button class="add-to-cart">ADD TO CART</button>
-            <button class="buy-now">BUY NOW</button>
-        </div>
+        <button id="add-to-cart-btn" data-product="{{ product.id }}">Add to Cart</button>
+        <button id="add-to-cart-btn1" data-product="{{ product.id }}">BUY NOW</button>
+
+
+<!-- Success Message -->
+<div id="cart-success-msg" style="display:none; color:green; margin-top:10px;"></div>
+
         <hr>
 
 
@@ -473,6 +492,8 @@ body, .product-detail-container {
 
 
 <!-- ✅ JS IMAGE SWITCH -->
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
 function changeImage(img) {
     document.getElementById("mainImage").src = img.src;
@@ -601,6 +622,95 @@ document.addEventListener("DOMContentLoaded", () => {
         if (btn) btn.classList.add('added');
     });
 });
+
+
+
+// Select size button
+let selectedSizeId = null;
+$('.size-btn').click(function() {
+    $('.size-btn').removeClass('selected'); // Remove previous selection
+    $(this).addClass('selected');
+    selectedSizeId = $(this).data('size');
+});
+
+// Add to cart AJAX
+
+$('#add-to-cart-btn').click(function() {
+      if (!selectedSizeId) {
+        $('#size-warning-msg').text('Please select a size!').fadeIn().delay(2000).fadeOut();
+        return;
+    }
+
+    let product_id = $(this).data('product');
+
+    $.ajax({
+        url: "{% url 'add_to_cart' %}",
+        method: "POST",
+        data: {
+            'product_id': product_id,
+            'size_id': selectedSizeId,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response){
+            if(response.success){
+                $('#cart-success-msg').text(response.message).fadeIn().delay(2000).fadeOut();
+            } else {
+                alert('Failed to add to cart!Please LogIn And Continue');
+            }
+        }
+    });
+});
+
+
+// BUY NOW - Add to cart and redirect to cart
+
+$('#add-to-cart-btn1').click(function() {
+    if (!selectedSizeId) {
+        $('#size-warning-msg')
+            .text('Please select a size!')
+            .fadeIn()
+            .delay(2000)
+            .fadeOut();
+        return;
+    }
+
+    let product_id = $(this).data('product');
+
+    $.ajax({
+        url: "{% url 'add_to_cart' %}",
+        method: "POST",
+        data: {
+            'product_id': product_id,
+            'size_id': selectedSizeId,
+            'quantity': 1,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                // Optional: show a quick message
+                $('#cart-success-msg')
+                    .text(response.message + " Redirecting to cart...")
+                    .fadeIn()
+                    .delay(800)
+                    .fadeOut();
+
+                // ✅ Redirect to cart page
+                setTimeout(function() {
+                    window.location.href = "{% url 'cart' %}";
+                }, 800);
+            } else {
+                alert(response.message);
+            }
+        },
+        error: function() {
+            alert('Something went wrong. Please try again.');
+        }
+    });
+});
+
+
+
+
 </script>
 
 {% endblock %}
