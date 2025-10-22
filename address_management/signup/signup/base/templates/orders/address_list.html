@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Addresses</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+body { font-family: Arial, sans-serif; background:#f5f5f5; padding:20px; }
+.container { max-width:800px; margin:auto; background:#fff; padding:25px; border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
+h2 { text-align:center; margin-bottom:20px; color:#000; }
+.address-card { background:#fafafa; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #ddd; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; }
+.address-info { flex: 1 1 70%; }
+.address-info p { margin:3px 0; }
+.address-actions { display:flex; gap:10px; flex: 1 1 25%; justify-content:flex-end; }
+.address-actions a { text-decoration:none; padding:8px 12px; border-radius:6px; color:#fff; font-weight:600; }
+.edit-btn { background:#000; }
+.edit-btn:hover { background:#333; }
+.delete-btn { background:#e74c3c; }
+.delete-btn:hover { background:#c0392b; }
+.add-btn { display:block; width:100%; text-align:center; padding:12px; background:#000; color:#fff; border-radius:6px; margin-bottom:15px; text-decoration:none; font-weight:600; }
+.add-btn:hover { background:#333; }
+@media(max-width:600px){
+  .address-actions { flex: 1 1 100%; margin-top:10px; justify-content:flex-start; gap:5px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>My Addresses</h2>
+
+<a href="{% url 'base:add_address' %}" class="add-btn"><i class="fa-solid fa-plus"></i> Add New Address</a>
+
+{% if addresses %}
+  {% for address in addresses %}
+    <div class="address-card">
+      <div class="address-info">
+        <p><strong>{{ address.fullname }}</strong></p>
+        <p>{{ address.address1 }}, {{ address.address2 }}</p>
+        <p>{{ address.city }}, {{ address.state }} - {{ address.pincode }}</p>
+        <p>{{ address.country }}</p>
+        <p>📞 {{ address.mobile }}</p>
+        {% if address.landmark %}<p>Landmark: {{ address.landmark }}</p>{% endif %}
+      </div>
+      <div class="address-actions">
+        <a href="{% url 'base:edit_address' address.id %}" class="edit-btn"><i class="fa-solid fa-pen"></i> Edit</a>
+        <a href="{% url 'base:delete_address' address.id %}" class="delete-btn" onclick="return confirm('Are you sure to delete this address?');"><i class="fa-solid fa-trash"></i> Delete</a>
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <p style="text-align:center; color:#555;">No addresses found. Add a new address.</p>
+{% endif %}
+
+</div>
+
+</body>
+</html>
