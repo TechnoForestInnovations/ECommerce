@@ -163,33 +163,58 @@ def landing(request):
 
 # ------------------ LOGIN ------------------
 def login_view(request):
-    if request.method == "POST":
+    context = {"otp_section": False, "contact": None, "resend_disabled": True, "active_tab": "password"}
+
+    # PASSWORD LOGIN
+    if request.method == "POST" and "password_login" in request.POST:
         email_or_mobile = request.POST.get("email_or_mobile")
         password = request.POST.get("password")
-
-        try:
-            if "@" in email_or_mobile:
-                user_obj = User.objects.filter(email=email_or_mobile).first()
-            else:
-                user_obj = User.objects.filter(username=email_or_mobile).first()
-        except User.DoesNotExist:
-            user_obj = None
-
-        if not user_obj:
-            messages.error(request, "Invalid Email/Mobile or Password")
-            return redirect("base:login")
-
-        user = authenticate(username=user_obj.username, password=password)
-        if user is not None:
+        user = User.objects.filter(email=email_or_mobile).first() if "@" in email_or_mobile else User.objects.filter(username=email_or_mobile).first()
+        if user and user.check_password(password):
             auth_login(request, user)
             return redirect("base:landing")
         else:
             messages.error(request, "Invalid credentials")
-            return redirect("base:login")
+            context["active_tab"] = "password"
 
-    return render(request, "registration/login.html")
+    # OTP LOGIN - Send OTP
+    elif request.method == "POST" and "send_otp" in request.POST:
+        contact = request.POST.get("email_or_mobile")
+        user = User.objects.filter(email=contact).first() if "@" in contact else User.objects.filter(username=contact).first()
+        if not user:
+            messages.error(request, "User not found")
+            context["active_tab"] = "otp"
+        else:
+            otp = generate_otp()
+            otp_storage[contact] = {"otp": otp, "timestamp": time.time(), "is_email": "@" in contact}
+            if "@" in contact:
+                send_otp_email(contact, otp)
+            else:
+                send_otp_sms(contact, otp)
+            context.update({"otp_section": True, "contact": contact, "active_tab": "otp"})
 
-# ------------------ FORGOT PASSWORD ------------------
+    # OTP LOGIN - Verify OTP
+    elif request.method == "POST" and "verify" in request.POST:
+        contact = request.POST.get("contact")
+        otp_entered = request.POST.get("otp")
+        otp_data = otp_storage.get(contact)
+        context.update({"otp_section": True, "contact": contact, "active_tab": "otp"})
+        if otp_data and otp_entered == otp_data["otp"]:
+            user = User.objects.filter(email=contact).first() if otp_data["is_email"] else User.objects.filter(username=contact).first()
+            if user:
+                auth_login(request, user)
+                del otp_storage[contact]
+                return redirect("base:landing")
+        else:
+            messages.error(request, "Invalid OTP")
+
+    # Show OTP tab if URL query says so
+    tab = request.GET.get("tab")
+    if tab in ["password", "otp"]:
+        context["active_tab"] = tab
+
+    return render(request, "registration/login.html", context)
+
 # ------------------ FORGOT PASSWORD ------------------
 def forgot_password(request):
     context = {"errors": {}, "otp_section": False, "contact": None, "resend_disabled": True}
@@ -326,3 +351,9 @@ def forgot_password_reset(request):
         return redirect("base:login")
 
     return render(request, "registration/forgot_password_reset.html", context)
+# ------------------ LOGIN WITH OTP ------------------
+
+from django.shortcuts import render
+
+def login_options(request):
+    return render(request, "login_options.html")
