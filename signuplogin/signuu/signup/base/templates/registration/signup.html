@@ -2,49 +2,60 @@
 <html>
 <head>
     <title>Signup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: Arial, sans-serif;
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background: #f3f4f5ff;
+            background: #f3f4f6;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 10px;
+            padding: 15px;
         }
 
         .form-box {
             width: 100%;
             max-width: 400px;
-            background: #a6b9cbff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background: #fff;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
 
         .form-box h2 {
             text-align: center;
             margin-bottom: 20px;
+            color: #222;
+            font-size: clamp(20px, 5vw, 26px);
         }
 
         .form-box input {
             width: 100%;
             padding: 12px;
             margin-top: 8px;
-            border: 2px solid #ccc;
+            border: 1px solid #ccc;
             border-radius: 6px;
-            font-size: 16px;
+            font-size: clamp(14px, 4vw, 16px);
+            color: #000;
+            background: #fff;
+        }
+
+        .form-box input::placeholder {
+            font-size: clamp(12px, 3.5vw, 14px);
+            color: #888;
         }
 
         .error {
             color: red;
-            font-size: 13px;
+            font-size: clamp(12px, 3.5vw, 14px);
             margin-top: 4px;
         }
 
@@ -52,54 +63,42 @@
             margin-top: 15px;
             width: 100%;
             padding: 12px;
-            background: #007bff;
+            background: #000;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: clamp(14px, 4vw, 16px);
         }
 
-        .btn:disabled {
-            background: grey;
-            cursor: not-allowed;
-        }
+        .btn:hover { background: #444; }
+        .btn:disabled { background: grey; cursor: not-allowed; }
 
         .password-container {
             position: relative;
         }
 
         .password-container input {
-            padding-right: 35px;
+            padding-right: 40px;
         }
 
         .toggle-eye {
             position: absolute;
-            right: 10px;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: #888;
-            font-size: 18px;
+            color: #666;
+            font-size: clamp(14px, 4vw, 18px);
         }
 
-        .toggle-eye:hover {
-            color: #000;
-        }
+        .toggle-eye:hover { color: #000; }
 
+        /* Extra fine-tuning for small screens */
         @media (max-width: 500px) {
-            .form-box {
-                padding: 15px;
-            }
-
-            .form-box input, .btn {
-                font-size: 14px;
-                padding: 10px;
-            }
-
-            .toggle-eye {
-                font-size: 16px;
-            }
+            body { padding: 10px; }
+            .form-box { padding: 20px; }
+            .btn { padding: 10px; }
         }
     </style>
 </head>
@@ -119,14 +118,14 @@
         {% if errors.contact %}<div class="error">{{ errors.contact }}</div>{% endif %}
 
         <div class="password-container">
-            <input type="password" name="password" id="password" placeholder="Password" required>
-            <span class="toggle-eye" onclick="togglePassword('password')">👁️</span>
+            <input type="password" name="password" id="password" placeholder="Password must be 8+ chars with atleast 1 upper,1lowercase,number&special character" required>
+            <i class="fa-regular fa-eye toggle-eye" id="eye-password" onclick="togglePassword('password','eye-password')"></i>
         </div>
         {% if errors.password %}<div class="error">{{ errors.password }}</div>{% endif %}
 
         <div class="password-container">
             <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
-            <span class="toggle-eye" onclick="togglePassword('confirm_password')">👁️</span>
+            <i class="fa-regular fa-eye toggle-eye" id="eye-confirm" onclick="togglePassword('confirm_password','eye-confirm')"></i>
         </div>
         {% if errors.confirm_password %}<div class="error">{{ errors.confirm_password }}</div>{% endif %}
 
@@ -142,7 +141,9 @@
         <input type="text" name="otp" placeholder="Enter OTP" required>
         {% if errors.otp %}<div class="error">{{ errors.otp }}</div>{% endif %}
 
-        <p>OTP expires in <span id="timer">300</span> seconds</p>
+        <p style="font-size: clamp(13px, 3.5vw, 15px); margin-top:10px;">
+            OTP expires in <span id="timer">300</span> seconds
+        </p>
 
         <button type="submit" name="verify" class="btn">Confirm OTP</button>
         <button type="submit" name="resend" class="btn" id="resend-btn" {% if resend_disabled %}disabled{% endif %}>Resend OTP</button>
@@ -167,9 +168,19 @@
 </div>
 
 <script>
-function togglePassword(fieldId) {
+function togglePassword(fieldId, eyeId) {
     const field = document.getElementById(fieldId);
-    field.type = field.type === "password" ? "text" : "password";
+    const eyeIcon = document.getElementById(eyeId);
+
+    if (field.type === "password") {
+        field.type = "text";
+        eyeIcon.classList.remove("fa-eye");
+        eyeIcon.classList.add("fa-eye-slash");
+    } else {
+        field.type = "password";
+        eyeIcon.classList.remove("fa-eye-slash");
+        eyeIcon.classList.add("fa-eye");
+    }
 }
 </script>
 </body>
