@@ -1,0 +1,395 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+
+.cart-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 30px auto;
+}
+
+/* LEFT SECTION (Cart Items) */
+
+.cart-products {
+    flex: 2;
+    min-width: 650px;
+}
+
+.cart-item {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.cart-item-left {
+
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    flex: 1;
+}
+
+.cart-item img {
+    width: 130px;
+    height: 160px;
+    border-radius: 1px;
+    object-fit: cover;
+    margin-left:2%;
+}
+
+.cart-item-details h4 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.cart-item-details p {
+    margin: 7px 0;
+    font-size: 15px;
+    color: #222;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.quantity-controls button {
+    border: 1px solid #333;
+    background: transparent;
+    color: #000;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.quantity-controls span {
+    width: 30px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.remove-btn {
+    background: #dc3545;
+    border: none;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    align-self: center;
+}
+
+/* RIGHT SECTION (Order Summary) */
+.order-summary {
+    flex: 1;
+    min-width: 320px;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    padding: 25px;
+    height: fit-content;
+}
+
+.order-summary h3 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+/* ADDRESS BOX */
+.address-box {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.address-box a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.address-box a:hover {
+    text-decoration: underline;
+}
+
+/* PAYMENT METHOD */
+.payment-method {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.payment-method label {
+    font-size: 16px;
+    margin-right: 20px;
+}
+
+/* PRICE DETAILS */
+.price-details {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.price-details .total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+}
+
+/* PLACE ORDER BUTTON */
+.place-order-btn {
+    width: 100%;
+    background: #000;
+    color: white;
+    font-size: 18px;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.place-order-btn:hover {
+    opacity: 0.9;
+}
+
+/* 📱 Mobile Responsive Fixes */
+@media (max-width: 768px) {
+
+    .cart-container {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .cart-products,
+    .order-summary {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .cart-item-left {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .cart-item img {
+        width: 100px;
+        height: 120px;
+    }
+
+    .quantity-controls {
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .remove-btn {
+        margin-top: 10px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .order-summary {
+        padding: 15px;
+    }
+
+    .place-order-btn {
+        width: 100%;
+        font-size: 16px;
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cart-item-details h4 {
+        font-size: 16px;
+    }
+
+    .cart-item-details p {
+        font-size: 14px;
+    }
+
+    .quantity-controls button {
+        width: 28px;
+        height: 28px;
+    }
+
+    .place-order-btn {
+        font-size: 15px;
+        padding: 10px;
+    }
+}
+
+</style>
+
+<div class="cart-container">
+
+    {% if cart_items %}
+        <!-- LEFT SIDE: CART ITEMS -->
+        <div class="cart-products">
+            {% for item in cart_items %}
+            <div class="cart-item" data-cart-id="{{ item.id }}">
+                <div class="cart-item-left">
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                    <div class="cart-item-details">
+                        <h4>{{ item.product.name }}</h4>
+                        <p><strong>Color:</strong> {{ item.product.color }}</p>
+                        <p><strong>Size:</strong> {{ item.size.name|default:"N/A" }}</p>
+                        <p><strong>Price:</strong> ₹{{ item.product.price }}</p>
+                        <div class="quantity-controls">
+                            <button class="decrement">−</button>
+                            <span class="quantity">{{ item.quantity }}</span>
+                            <button class="increment">+</button>
+                        </div>
+                    </div>
+                </div>
+                <button class="remove-btn">Remove</button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- RIGHT SIDE: ORDER SUMMARY -->
+        <div class="order-summary">
+            <h3>Order Summary</h3>
+
+            <div class="address-box">
+                <p><strong>Deliver to</strong></p>
+                <p>{{ user.first_name|default:user.username }}<br>
+                   {{ address.address_line }}<br>
+                   {{ address.city }} - {{ address.pincode }}<br>
+                   {{ address.country }}<br>
+                   Phone: {{ address.phone }}</p>
+                <a href="#">ADD ADDRESS</a>
+            </div>
+
+            <div class="payment-method">
+                <p><strong>Select Payment Method</strong></p>
+                <label><input type="radio" name="payment" checked> Prepaid</label>
+                <label><input type="radio" name="payment"> Cash on Delivery</label>
+            </div>
+
+            <div class="price-details">
+                <div class="total">
+                    <span>Sub Total</span>
+                    <span>₹{{ total_price }}</span>
+                </div>
+            </div>
+
+           <button class="place-order-btn" onclick="window.location.href='{% url 'confirm_order' %}'">
+    Place Order
+</button>
+        </div>
+
+    {% else %}
+
+        <!-- 🛍 EMPTY CART SECTION -->
+        <div style="text-align:center; width:100%; padding:50px;">
+            <h2>Your Cart is Empty</h2>
+            <p>Looks like you haven't added anything yet.</p>
+            <a href="{% url 'product_list' %}"
+               style="padding:12px 25px; background:black; color:white;
+                      text-decoration:none; border-radius:6px;">
+                Continue Shopping
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+
+<!-- jQuery for quantity updates -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+$('.increment, .decrement').click(function() {
+    var cartItem = $(this).closest('.cart-item');
+    var cart_id = cartItem.data('cart-id');
+    var action = $(this).hasClass('increment') ? 'increment' : 'decrement';
+
+    $.ajax({
+        url: "{% url 'update_cart' %}",
+        method: "POST",
+        data: {
+            'cart_id': cart_id,
+            'action': action,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                cartItem.find('.quantity').text(response.quantity);
+                cartItem.find('p strong:contains("Subtotal")').next().text('₹' + response.item_total);
+                $('.price-details .total span:last-child').text('₹' + response.total_price);
+            }
+        }
+    });
+});
+
+
+$('.remove-btn').click(function() {
+    var cartItem = $(this).closest('.cart-item');
+    var cart_id = cartItem.data('cart-id');
+
+    $.ajax({
+        url: "{% url 'remove_cart' %}",
+        method: "POST",
+        data: {
+            'cart_id': cart_id,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                cartItem.fadeOut(300, function() {
+                    $(this).remove();
+
+                    // Update total
+                    $('.price-details .total span:last-child').text('₹' + response.total_price);
+
+                    // If no items left, show empty cart message
+                    if ($('.cart-item').length === 0) {
+                        $('.cart-container').html(`
+                            <div style="text-align:center; width:100%; padding:50px;">
+                                <h2>Your Cart is Empty</h2>
+                                <p>Looks like you haven't added anything yet.</p>
+                                <a href="{% url 'product_list' %}"
+                                   style="padding:12px 25px; background:black; color:white;
+                                          text-decoration:none; border-radius:6px;">
+                                    Continue Shopping
+                                </a>
+                            </div>
+                        `);
+                    }
+                });
+            } else {
+                alert(response.error || "Failed to remove item");
+            }
+        },
+        error: function() {
+            alert("Error removing item.");
+        }
+    });
+});
+
+</script>
+{% endblock %}

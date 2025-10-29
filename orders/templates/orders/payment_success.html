@@ -1,0 +1,22 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block content %}
+<div style="text-align:center; margin:50px 0;">
+    <h1 style="color:green;">✅ Payment Successful!</h1>
+    <p>Thank you, {{ user.first_name|default:user.username }}. Your order has been placed successfully.</p>
+
+    <p><strong>Order ID:</strong> {{ order.id }}</p>
+    <p><strong>Total Amount Paid:</strong> ₹{{ order.total_price }}</p>
+
+    <a href="{% url 'product_list' %}" 
+       style="padding:12px 25px; background:black; color:white; text-decoration:none; border-radius:6px;">
+        Continue Shopping
+    </a>
+
+    <a href="{% url 'order_history' %}" 
+       style="padding:12px 25px; background:#007bff; color:white; text-decoration:none; border-radius:6px; margin-left:10px;">
+        View My Orders
+    </a>
+</div>
+{% endblock %}
