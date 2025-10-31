@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+     
+    <title>Login Options</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+</head>
+<body>
+<div class="form-box">
+    <h2>Choose Login Method</h2>
+
+    <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+        <a href="{% url 'base:login' %}" class="btn">Login with Password</a>
+        <a href="{% url 'base:login_with_otp' %}" class="btn">Login with OTP</a>
+    </div>
+</div>
+</body>
+</html>
