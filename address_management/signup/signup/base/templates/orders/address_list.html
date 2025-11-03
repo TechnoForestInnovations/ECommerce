@@ -10,15 +10,20 @@
 body { font-family: Arial, sans-serif; background:#f5f5f5; padding:20px; }
 .container { max-width:800px; margin:auto; background:#fff; padding:25px; border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
 h2 { text-align:center; margin-bottom:20px; color:#000; }
-.address-card { background:#fafafa; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #ddd; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; }
-.address-info { flex: 1 1 70%; }
+.address-card { background:#fafafa; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #ddd; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; transition:0.3s; }
+.address-card.selected { border:2px solid #000; background:#e8f5e9; }
+.address-info { flex: 1 1 60%; }
 .address-info p { margin:3px 0; }
-.address-actions { display:flex; gap:10px; flex: 1 1 25%; justify-content:flex-end; }
-.address-actions a { text-decoration:none; padding:8px 12px; border-radius:6px; color:#fff; font-weight:600; }
+.address-actions { display:flex; gap:10px; flex: 1 1 35%; justify-content:flex-end; flex-wrap:wrap; }
+.address-actions a, .address-actions button {
+  text-decoration:none; padding:8px 12px; border-radius:6px; color:#fff; font-weight:600; border:none; cursor:pointer;
+}
 .edit-btn { background:#000; }
 .edit-btn:hover { background:#333; }
 .delete-btn { background:#e74c3c; }
 .delete-btn:hover { background:#c0392b; }
+.select-btn { background:#007bff; }
+.select-btn:hover { background:#0056b3; }
 .add-btn { display:block; width:100%; text-align:center; padding:12px; background:#000; color:#fff; border-radius:6px; margin-bottom:15px; text-decoration:none; font-weight:600; }
 .add-btn:hover { background:#333; }
 @media(max-width:600px){
@@ -29,32 +34,53 @@ h2 { text-align:center; margin-bottom:20px; color:#000; }
 <body>
 
 <div class="container">
-<h2>My Addresses</h2>
+  <h2>My Addresses</h2>
 
-<a href="{% url 'base:add_address' %}" class="add-btn"><i class="fa-solid fa-plus"></i> Add New Address</a>
+  <a href="{% url 'base:add_address' %}" class="add-btn"><i class="fa-solid fa-plus"></i> Add New Address</a>
 
-{% if addresses %}
-  {% for address in addresses %}
-    <div class="address-card">
-      <div class="address-info">
-        <p><strong>{{ address.fullname }}</strong></p>
-        <p>{{ address.address1 }}, {{ address.address2 }}</p>
-        <p>{{ address.city }}, {{ address.state }} - {{ address.pincode }}</p>
-        <p>{{ address.country }}</p>
-        <p>📞 {{ address.mobile }}</p>
-        {% if address.landmark %}<p>Landmark: {{ address.landmark }}</p>{% endif %}
-      </div>
-      <div class="address-actions">
-        <a href="{% url 'base:edit_address' address.id %}" class="edit-btn"><i class="fa-solid fa-pen"></i> Edit</a>
-        <a href="{% url 'base:delete_address' address.id %}" class="delete-btn" onclick="return confirm('Are you sure to delete this address?');"><i class="fa-solid fa-trash"></i> Delete</a>
-      </div>
+  {% if addresses %}
+    <div id="addressList">
+      {% for address in addresses %}
+        <div class="address-card" data-id="{{ address.id }}">
+          <div class="address-info">
+            <p><strong>{{ address.fullname }}</strong></p>
+            <p>{{ address.address1 }}, {{ address.address2 }}</p>
+            <p>{{ address.city }}, {{ address.state }} - {{ address.pincode }}</p>
+            <p>{{ address.country }}</p>
+            <p>📞 {{ address.mobile }}</p>
+            {% if address.landmark %}<p>Landmark: {{ address.landmark }}</p>{% endif %}
+          </div>
+          <div class="address-actions">
+            {% comment %} <button class="select-btn" onclick="selectAddress(this)">Select</button> {% endcomment %}
+            <a href="{% url 'base:select_address' address.id %}" class="select-btn">
+           {% if address.is_selected %}Selected{% else %}Select{% endif %}
+            </a>
+
+            <a href="{% url 'base:edit_address' address.id %}" class="edit-btn"><i class="fa-solid fa-pen"></i> Edit</a>
+            <a href="{% url 'base:delete_address' address.id %}" class="delete-btn" onclick="return confirm('Are you sure to delete this address?');"><i class="fa-solid fa-trash"></i> Delete</a>
+          </div>
+        </div>
+      {% endfor %}
     </div>
-  {% endfor %}
-{% else %}
-  <p style="text-align:center; color:#555;">No addresses found. Add a new address.</p>
-{% endif %}
-
+  {% else %}
+    <p style="text-align:center; color:#555;">No addresses found. Add a new address.</p>
+  {% endif %}
 </div>
+
+<script>
+function selectAddress(btn) {
+  // remove previous selected
+  document.querySelectorAll('.address-card').forEach(card => card.classList.remove('selected'));
+
+  // add selected class
+  const selectedCard = btn.closest('.address-card');
+  selectedCard.classList.add('selected');
+
+  // move it to top
+  const list = document.getElementById('addressList');
+  list.prepend(selectedCard);
+}
+</script>
 
 </body>
 </html>
