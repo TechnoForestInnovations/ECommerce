@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | ECommerce</title>
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <style>
         body {
             height: 100vh;
@@ -40,10 +40,20 @@
         .login-btn { width: 100%; padding: 12px; margin-top: 10px; border: none; background: #000; color: #fff; cursor: pointer; font-weight: bold; border-radius: 6px; transition: 0.3s; }
         .login-btn:hover:not(:disabled) { background: #333; }
         .login-btn:disabled { background: gray; cursor: not-allowed; }
-        .forgot { margin-top: 10px; text-align: right; }
-        .forgot a { color: #007bff; text-decoration: none; font-size: 14px; }
-        .forgot a:hover { text-decoration: underline; }
-        .error-message p, .error { color: red; margin-top: 5px; font-size: 14px; }
+        .forgot {
+    margin-top: 10px;
+    text-align: center;
+}
+.forgot a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 14px;
+}
+.forgot a:hover {
+    text-decoration: underline;
+}
+
+        .error-message p, .error { color: green; margin-top: 5px; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -71,6 +81,11 @@
                 <button type="submit" name="password_login" class="login-btn">Login</button>
                 <div class="forgot">
                     <a href="{% url 'base:forgot_password' %}">Forgot Password?</a>
+            
+                  
+                </div>
+                <div class="forgot">
+                     <a href="{% url 'base:signup' %}">New User? Create an Account</a>
                 </div>
             </form>
         </div>
