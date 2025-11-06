@@ -41,12 +41,12 @@ def cart(request):
         addresses = None
 
     # Calculate totals
+    total_items = 0
     for item in cart_items:
         item.subtotal = item.price * item.quantity
+        total_items += item.quantity
         if not item.is_available_for_cod:
             all_items_eligible_for_cod = False
-
-    total_items = sum(item.quantity for item in cart_items)
     total_price = sum(item.price * item.quantity for item in cart_items)
 
     if total_price >= min_amount_for_free_delivery:
@@ -66,7 +66,8 @@ def cart(request):
         'taxes': taxes,
         'delivery_charge': delivery_charge,
         'grand_total': grand_total,
-        'min_amount_for_free_delivery': min_amount_for_free_delivery,  # ✅ Added
+        'min_amount_for_free_delivery': min_amount_for_free_delivery,
+        'taxes_and_charges': taxes_and_charges,
     })
 
 def checkout_view(request):
@@ -120,6 +121,10 @@ def update_cart(request, item_id):
                 total_price = sum(item.price * item.quantity for item in cart_items)
                 tax_percentage = TaxesAndCharges.objects.first().tax
                 min_amount_for_free_delivery=TaxesAndCharges.objects.first().min_amount_for_free_delivery
+                all_items_eligible_for_cod = True
+                for item in cart_items:
+                    if not item.is_available_for_cod:
+                        all_items_eligible_for_cod = False
                 if total_price >= min_amount_for_free_delivery:
                     delivery_charges=0
                 else:
@@ -134,7 +139,8 @@ def update_cart(request, item_id):
                         "total_price": f"₹{total_price:.2f}",
                         "taxes": f"₹{taxes:.2f}",
                         "grand_total": f"₹{grand_total:.2f}"
-                    }
+                    },
+                    'all_items_eligible_for_cod': all_items_eligible_for_cod,
                 })
             else:
                 cart_item.save()
@@ -149,6 +155,10 @@ def update_cart(request, item_id):
         total_price = sum(item.price * item.quantity for item in cart_items)
         taxes= (tax_percentage/100)*total_price
         grand_total= total_price + taxes + delivery_charges
+        all_items_eligible_for_cod = True
+        for item in cart_items:
+            if not item.is_available_for_cod:
+                all_items_eligible_for_cod = False
         return JsonResponse({
             "quantity": cart_item.quantity,
             "subtotal": f"{subtotal:.2f}",
@@ -158,7 +168,8 @@ def update_cart(request, item_id):
                 "total_price": f"₹{total_price:.2f}",
                 "taxes":f"₹{taxes:.2f}",
                 "grand_total":f"₹{grand_total:.2f}"
-            }
+            },
+            'all_items_eligible_for_cod': all_items_eligible_for_cod,
             
         })
 

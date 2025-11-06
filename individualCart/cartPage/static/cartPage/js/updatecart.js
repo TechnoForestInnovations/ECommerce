@@ -1,8 +1,8 @@
 // ===============================
 // CART FUNCTIONALITY + SELECTION
 // ===============================
+let currentCODStatus = true; // Whether all items are COD eligible
 
-// Run after page loads
 document.addEventListener("DOMContentLoaded", () => {
     setupSelectionFeature();
     updateCartSummary();
@@ -16,8 +16,24 @@ document.addEventListener("click", async (e) => {
         const button = e.target;
         const itemId = button.dataset.id;
         const action = button.classList.contains("increase") ? "increase" : "decrease";
+
+        const qtyDisplay = document.querySelector(`#qty-${itemId}`);
+        if (!qtyDisplay) return;
+
+        let currentQty = parseInt(qtyDisplay.textContent || qtyDisplay.value);
+
+        if (action === "increase") currentQty++;
+        else if (action === "decrease" && currentQty > 1) currentQty--;
+
+        // Update locally
+        if (qtyDisplay.tagName === "INPUT") {
+            qtyDisplay.value = currentQty;
+        } else {
+            qtyDisplay.textContent = currentQty;
+        }
+
+        // ✅ Wait for backend update to complete before refreshing summary
         await updateCart(itemId, action);
-        updateCartSummary();
     }
 });
 
@@ -52,6 +68,25 @@ async function updateCart(itemId, action) {
             }
         }
 
+        // ✅ Handle COD eligibility toggle
+        const codInput = document.getElementById("payment-cod");
+        if (codInput && data.hasOwnProperty("all_items_eligible_for_cod")) {
+            currentCODStatus = data.all_items_eligible_for_cod;
+            if (currentCODStatus) {
+                codInput.disabled = false;
+                codInput.style.cursor = "pointer";
+                codInput.title = "";
+            } else {
+                codInput.disabled = true;
+                codInput.checked = false;
+                codInput.style.cursor = "not-allowed";
+                codInput.title = "Some items are not eligible for Cash on Delivery.";
+            }
+        }
+
+        // ✅ Update summary after backend updates are applied
+        updateCartSummary();
+
     } catch (error) {
         console.error("Error updating cart:", error);
     }
@@ -65,10 +100,8 @@ function setupSelectionFeature() {
     const selectAllCheckbox = document.getElementById("select-all");
     const checkoutButton = document.getElementById("checkout-button");
 
-    // Individual checkbox change
     checkboxes.forEach(box => box.addEventListener("change", updateCartSummary));
 
-    // Select All checkbox
     if (selectAllCheckbox) {
         selectAllCheckbox.addEventListener("change", function () {
             checkboxes.forEach(box => (box.checked = selectAllCheckbox.checked));
@@ -76,7 +109,6 @@ function setupSelectionFeature() {
         });
     }
 
-    // Checkout validation
     if (checkoutButton) {
         checkoutButton.addEventListener("click", function (e) {
             const selectedItems = getSelectedItemIDs();
@@ -96,7 +128,6 @@ function setupSelectionFeature() {
         });
     }
 
-    // Observe subtotal changes dynamically
     const observer = new MutationObserver(updateCartSummary);
     document.querySelectorAll(".cart-item-subtotal").forEach(el =>
         observer.observe(el, { childList: true })
@@ -108,27 +139,59 @@ function setupSelectionFeature() {
 // ------------------------------
 function updateCartSummary() {
     const checkboxes = document.querySelectorAll(".select-item");
-    const totalDisplay = document.getElementById("total-price");
-    const summaryItems = document.getElementById("total-items");
-    const taxesEl = document.getElementById("taxes");
-    const deliveryEl = document.getElementById("delivery-charge");
-    const grandTotalEl = document.getElementById("grand-total");
     const warningMessage = document.getElementById("warning-message");
+    const codInput = document.getElementById("payment-cod");
+
+    const taxRateEl = document.getElementById("tax-rate");
+    const baseDeliveryEl = document.getElementById("delivery-charge-base");
+    const minAmountEl = document.getElementById("min-amount-for-free-delivery");
+
+    const taxRate = taxRateEl ? parseNumber(taxRateEl.value) : 0;
+    const baseDeliveryCharge = baseDeliveryEl ? parseNumber(baseDeliveryEl.value) : 0;
+    const minAmountForFreeDelivery = minAmountEl ? parseNumber(minAmountEl.value) : 0;
 
     let total = 0;
-    let count = 0;
+    let totalItems = 0;
+    let all_items_eligible_for_cod = true;
 
     checkboxes.forEach(box => {
         if (box.checked) {
-            const subtotalEl = document.querySelector(`#subtotal-${box.dataset.id}`);
-            if (subtotalEl) {
-                total += parseNumber(subtotalEl.textContent);
-                count++;
+            const itemId = box.dataset.id;
+            const subtotalEl = document.querySelector(`#subtotal-${itemId}`);
+            const qtyEl = document.querySelector(`#qty-${itemId}`);
+
+            const qty = qtyEl ? parseInt(qtyEl.textContent || qtyEl.value || 0) : 0;
+            const subtotal = subtotalEl ? parseNumber(subtotalEl.textContent) : 0;
+
+            total += subtotal;
+            totalItems += qty;
+
+            if (box.dataset.cod !== "true") {
+                all_items_eligible_for_cod = false;
             }
         }
     });
 
-    if (count === 0) {
+    // ✅ Enable/disable COD dynamically
+    if (codInput) {
+        if (totalItems === 0) {
+            codInput.disabled = true;
+            codInput.checked = false;
+            codInput.style.cursor = "not-allowed";
+            codInput.title = "No items selected.";
+        } else if (all_items_eligible_for_cod) {
+            codInput.disabled = false;
+            codInput.style.cursor = "pointer";
+            codInput.title = "";
+        } else {
+            codInput.disabled = true;
+            codInput.checked = false;
+            codInput.style.cursor = "not-allowed";
+            codInput.title = "Some selected items are not eligible for Cash on Delivery.";
+        }
+    }
+
+    if (totalItems === 0) {
         if (warningMessage) {
             warningMessage.textContent = "⚠️ Please select at least one item to update summary.";
             warningMessage.style.display = "block";
@@ -139,55 +202,57 @@ function updateCartSummary() {
         if (warningMessage) warningMessage.style.display = "none";
     }
 
-    // Example calculation: 5% tax, flat 50 delivery
-    const tax = total * 0.05;
-    const deliveryCharge = 50;
+    const tax = (taxRate / 100) * total;
+    const deliveryCharge = (total >= minAmountForFreeDelivery) ? 0 : baseDeliveryCharge;
     const grandTotal = total + tax + deliveryCharge;
 
-    setSummaryDisplays(total, count, tax, deliveryCharge, grandTotal);
+    setSummaryDisplays(total, totalItems, tax, deliveryCharge, grandTotal);
 }
 
-// Helper to update summary elements
-// Helper to update summary elements dynamically
+// ------------------------------
+// SUMMARY DISPLAY UPDATE
+// ------------------------------
 function setSummaryDisplays(total, count, tax, deliveryCharge, grandTotal) {
     const totalDisplay = document.getElementById("total-price");
     const summaryItems = document.getElementById("total-items");
     const taxesEl = document.getElementById("taxes");
     const deliveryEl = document.getElementById("delivery-charge");
     const grandTotalEl = document.getElementById("grand-total");
-    const minAmountEl = document.getElementById("min-amount-for-free-delivery");
 
-    // Update visible totals
     if (totalDisplay) totalDisplay.textContent = formatCurrency(total, false);
     if (summaryItems) summaryItems.textContent = count;
     if (taxesEl) taxesEl.textContent = formatCurrency(tax, false);
-
-    // Get min amount for free delivery (from backend)
-    let minAmountForFreeDelivery = 0;
-    if (minAmountEl) {
-        minAmountForFreeDelivery = parseNumber(minAmountEl.value || minAmountEl.textContent);
-    }
-
-    // ✅ Always recheck delivery charge
-    let appliedDeliveryCharge = (total >= minAmountForFreeDelivery) ? 0 : deliveryCharge;
-
-    if (deliveryEl) deliveryEl.textContent = formatCurrency(appliedDeliveryCharge, false);
-
-    // ✅ Always update grand total dynamically
-    const updatedGrandTotal = total + tax + appliedDeliveryCharge;
-    if (grandTotalEl) grandTotalEl.textContent = formatCurrency(updatedGrandTotal, false);
+    if (deliveryEl) deliveryEl.textContent = formatCurrency(deliveryCharge, false);
+    if (grandTotalEl) grandTotalEl.textContent = formatCurrency(grandTotal, false);
 }
 
-// Helper functions
+// ------------------------------
+// UTILITIES
+// ------------------------------
 function parseNumber(value) {
     return parseFloat(value.toString().replace(/[^\d.-]/g, '')) || 0;
 }
 
 function formatCurrency(amount, includeSymbol = true) {
-    return includeSymbol ? `₹${amount.toFixed(2)}` : amount.toFixed(2);
+    if (amount === null || amount === undefined || isNaN(amount)) return includeSymbol ? "₹0.00" : "0.00";
+    return includeSymbol ? `₹${Number(amount).toFixed(2)}` : Number(amount).toFixed(2);
 }
 
+function getSelectedItemIDs() {
+    return Array.from(document.querySelectorAll(".select-item"))
+        .filter(box => box.checked)
+        .map(box => box.dataset.id);
+}
 
+function getCSRFToken() {
+    const name = "csrftoken=";
+    const cookies = document.cookie.split(";");
+    for (let cookie of cookies) {
+        const trimmed = cookie.trim();
+        if (trimmed.startsWith(name)) return trimmed.substring(name.length);
+    }
+    return "";
+}
 
 // ------------------------------
 // PLACE ORDER
@@ -212,36 +277,4 @@ async function placeSelectedOrder(selectedItems) {
         console.error(err);
         alert("❌ Error placing order. Please try again.");
     }
-}
-
-// ------------------------------
-// UTILITIES
-// ------------------------------
-function getSelectedItemIDs() {
-    return Array.from(document.querySelectorAll(".select-item"))
-        .filter(box => box.checked)
-        .map(box => box.dataset.id);
-}
-
-function parseNumber(value) {
-    if (!value) return 0;
-    const cleaned = String(value).replace(/[^\d.-]/g, "");
-    const parsed = parseFloat(cleaned);
-    return isNaN(parsed) ? 0 : parsed;
-}
-
-function formatCurrency(amount, includeSymbol = true) {
-    if (amount === null || amount === undefined || isNaN(amount)) return includeSymbol ? "₹0.00" : "0.00";
-    const formatted = Number(amount).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    return includeSymbol ? `₹${formatted}` : formatted;
-}
-
-function getCSRFToken() {
-    const name = "csrftoken=";
-    const cookies = document.cookie.split(";");
-    for (let cookie of cookies) {
-        const trimmed = cookie.trim();
-        if (trimmed.startsWith(name)) return trimmed.substring(name.length);
-    }
-    return "";
 }

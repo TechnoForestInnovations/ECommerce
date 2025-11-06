@@ -49,7 +49,7 @@
             {% for item in cart_items %}
             <div class="cart-item">
                 <div class="cart-item-select">
-                    <input type="checkbox" class="item-checkbox select-item" id="item-{{ item.id }}" data-id="{{ item.id }}" checked>
+                    <input type="checkbox" class="item-checkbox select-item" id="item-{{ item.id }}" data-id="{{ item.id }}" data-cod="{{ item.is_available_for_cod|yesno:'true,false' }}" checked>
                 </div>
                 <a href="#"><img src="{{ item.image_url }}" alt="{{ item.name }}" class="cart-item-image"></a>
                 <div class="cart-item-details">
@@ -106,7 +106,11 @@
                         <span class="selected-option">
                             {% for addr in addresses %}
                                 {% if addr.is_default %}
-                                    {{ addr.full_name }}, {{ addr.address_line1 }}{% if addr.address_line2 %}, {{ addr.address_line2 }}{% endif %}, {{ addr.city }}, {{ addr.state }}, {{ addr.country }} - {{ addr.pincode }}
+                                    <strong>{{ addr.full_name }}</strong><br>
+                                    {{ addr.address_line1 }}{% if addr.address_line2 %}, {{ addr.address_line2 }}{% endif %}<br>
+                                    {{ addr.city }}, {{ addr.state }}, {{ addr.country }} - {{ addr.pincode }}<br>
+                                    {{ addr.mobile_number }}
+                                    <em> (Default)</em>
                                 {% endif %}
                             {% endfor %}
                         </span>
@@ -137,6 +141,11 @@
                 <div class="totals">
                 <p><span class="label">Total Items:</span> <span class="value" id="total-items">{{ total_items }}</span></p>
                 <p><span class="label">Sub Total:</span> <span class="value" id="total-price">₹{{ total_price }}</span></p>
+                <!-- Hidden meta data for JS -->
+                <input type="hidden" id="tax-rate" value="{{ taxes_and_charges.tax }}">
+                <input type="hidden" id="delivery-charge-base" value="{{ taxes_and_charges.delivery_charges }}">
+                <input type="hidden" id="min-amount-for-free-delivery" value="{{ taxes_and_charges.min_amount_for_free_delivery }}">
+
                 <p><span class="label">Taxes:</span> <span class="value" id="taxes">₹{{ taxes|floatformat:2 }}</span></p>
                 <p><span class="label">Delivery Charges:</span> <span class="value" id="delivery-charge">₹{{ delivery_charge|floatformat:2 }}</span></p>
                 <hr>
@@ -148,13 +157,12 @@
                 <!-- PAYMENT METHOD -->
                 <div class="payment-method">
                     <p><strong>Payment Method:</strong></p>
-                    {% if not all_items_eligible_for_cod %}<p>Please note that some items are not eligible for Cash on Delivery.</p>{% endif %}
                     <label>
-                        <input type="radio" name="payment_method" value="cod"
-                            {% if payment_method == 'cod' %}checked{% endif %}
-                            {% if not all_items_eligible_for_cod %}disabled style="cursor:not-allowed;" {% endif %}>
-                        Cash on Delivery
+                    <input type="radio" name="payment_method" value="cod" id="payment-cod"
+                            {% if payment_method == 'cod' %}checked{% endif %}>
+                    Cash on Delivery
                     </label>
+
                     <br>
                     <label>
                         <input type="radio" name="payment_method" value="online"
