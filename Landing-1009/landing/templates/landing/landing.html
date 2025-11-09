@@ -25,26 +25,24 @@
 
     <!-- =================== MAIN CONTENT =================== -->
     <main class="main-content">
-        {% comment %}
-        We assume you have 3 categories. For now, placeholder links are used for "Shop Now".
-        Replace `category_links[i]` with your real URLs later.
-        {% endcomment %}
-
-        {% for i in "123"|make_list %}
-        <section class="banner-section" data-category="{{ i }}">
-            <h1>Category {{ i }}</h1>
+        {% for category in categories %}
+        <section class="banner-section" data-category="{{ category.slug }}">
+            <h1>{{ category.name }}</h1>
             <div class="banner-container">
                 <div class="banner-item banner-left"></div>
                 <div class="banner-item banner-right"></div>
             </div>
             <div class="controls-wrapper">
-                <a href="#" class="shop-now-button" data-category="{{ i }}">Shop Now</a>
+                <a href="{{ category.link }}" class="shop-now-button" data-category="{{ category.slug }}">Shop Now</a>
                 <div class="carousel-dots"></div>
             </div>
         </section>
+        {% empty %}
+        <p>No categories available right now.</p>
         {% endfor %}
-
     </main>
+
+
     <!-- =================== MAIN CONTENT END =================== -->
     <!-- =================== FOOTER =================== -->
     {% include 'landing/footer.html' %}

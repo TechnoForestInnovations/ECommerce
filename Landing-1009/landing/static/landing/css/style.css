@@ -306,12 +306,13 @@ a {
 
 .banner-container {
     display: flex;
-    gap: 20px;
-    position: relative;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
 }
 
 .banner-item {
-    flex: 1;
+    flex: 0 0 50%;
     height: 400px;
     background-color: #e0e0e0;
     border-radius: 10px;
@@ -319,9 +320,9 @@ a {
     justify-content: center;
     align-items: center;
     font-size: 3rem;
-    color: #b0b0b0;
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     transition: opacity 0.8s ease-in-out;
     position: relative;
     overflow: hidden;

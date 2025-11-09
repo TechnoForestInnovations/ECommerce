@@ -1,14 +1,33 @@
 from django.shortcuts import render, redirect
 from django.contrib import auth
+# shop/views.py
+from django.http import JsonResponse
+from .models import Category
+
+def get_enabled_categories(request):
+    categories = Category.objects.filter(is_enabled=True)
+    data = [
+        {
+            "id": category.id,
+            "name": category.name,
+            "slug": category.slug,
+            "images": category.image_urls,
+            "link": category.link
+        }
+        for category in categories
+    ]
+    return JsonResponse({"categories": data})
 
 # -------------------------------
 # Home / Landing
 # -------------------------------
 def home(request):
-    return render(request, 'landing/landing.html')
+    categories = Category.objects.filter(is_enabled=True)
+    return render(request, 'landing/landing.html', {'categories': categories})
 
 def landing(request):
-    return render(request, "registration/landing.html")
+    categories = Category.objects.filter(is_enabled=True)
+    return render(request, "registration/landing.html", {'categories': categories})
 
 # -------------------------------
 # Pages

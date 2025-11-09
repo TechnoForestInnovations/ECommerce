@@ -21,4 +21,5 @@ urlpatterns = [
     path("cart/", views.cart, name="cart"),
     path("shop_now/", views.shop_now, name="shop_now"),
     path("logout/", views.logout_page, name="logout"),
+    path("api/categories/", views.get_enabled_categories, name="get_categories"),
 ]
