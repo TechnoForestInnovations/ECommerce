@@ -104,16 +104,33 @@
                 <div class="custom-select-wrapper">
                     <div id="selected_address" class="custom-select">
                         <span class="selected-option">
-                            {% for addr in addresses %}
-                                {% if addr.is_default %}
-                                    <strong>{{ addr.full_name }}</strong><br>
-                                    {{ addr.address_line1 }}{% if addr.address_line2 %}, {{ addr.address_line2 }}{% endif %}<br>
-                                    {{ addr.city }}, {{ addr.state }}, {{ addr.country }} - {{ addr.pincode }}<br>
-                                    {{ addr.mobile_number }}
-                                    <em> (Default)</em>
+                            {% with default_address=None %}
+                                {% for addr in addresses %}
+                                    {% if addr.is_default %}
+                                        {% with addr as default_address %}
+                                        {% endwith %}
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if default_address %}
+                                    <!-- Show default address -->
+                                    <strong>{{ default_address.full_name }}</strong><br>
+                                    {{ default_address.address_line1 }}{% if default_address.address_line2 %}, {{ default_address.address_line2 }}{% endif %}<br>
+                                    {{ default_address.city }}, {{ default_address.state }}, {{ default_address.country }} - {{ default_address.pincode }}<br>
+                                    {{ default_address.mobile_number }}
+                                    <em>(Default)</em>
+                                {% else %}
+                                    <!-- Fallback: show first address -->
+                                    {% with first_address=addresses.0 %}
+                                        <strong>{{ first_address.full_name }}</strong><br>
+                                        {{ first_address.address_line1 }}{% if first_address.address_line2 %}, {{ first_address.address_line2 }}{% endif %}<br>
+                                        {{ first_address.city }}, {{ first_address.state }}, {{ first_address.country }} - {{ first_address.pincode }}<br>
+                                        {{ first_address.mobile_number }}
+                                    {% endwith %}
                                 {% endif %}
-                            {% endfor %}
+                            {% endwith %}
                         </span>
+
                         <div class="options">
                             {% for addr in addresses %}
                             <div class="option" data-id="{{ addr.id }}">
