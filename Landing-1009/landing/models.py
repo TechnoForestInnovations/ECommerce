@@ -7,9 +7,11 @@ class Category(models.Model):
     image_urls = models.JSONField(default=list, blank=True)
     is_enabled = models.BooleanField(default=True)
     link = models.URLField(default="#", blank=True)
+    order = models.PositiveIntegerField(default=0, help_text="Order in which category appears on the landing page")
 
     class Meta:
-        verbose_name_plural = "Categories"  # 👈 fixes "Categorys" issue
+        verbose_name_plural = "Categories"
+        ordering = ['order']  # 👈 This automatically orders all queries by this field
 
     def save(self, *args, **kwargs):
         if not self.slug:

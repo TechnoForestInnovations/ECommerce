@@ -22,11 +22,11 @@ def get_enabled_categories(request):
 # Home / Landing
 # -------------------------------
 def home(request):
-    categories = Category.objects.filter(is_enabled=True)
+    categories = Category.objects.filter(is_enabled=True).order_by('order')
     return render(request, 'landing/landing.html', {'categories': categories})
 
 def landing(request):
-    categories = Category.objects.filter(is_enabled=True)
+    categories = Category.objects.filter(is_enabled=True).order_by('order')
     return render(request, "registration/landing.html", {'categories': categories})
 
 # -------------------------------
