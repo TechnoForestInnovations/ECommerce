@@ -8,28 +8,94 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-body { font-family: Arial, sans-serif; background:#f5f5f5; padding:20px; }
-.container { max-width:800px; margin:auto; background:#fff; padding:25px; border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
-h2 { text-align:center; margin-bottom:20px; color:#000; }
-label { display:block; margin-bottom:5px; font-weight:600; }
+body { 
+  font-family: Arial, sans-serif; 
+  background:#f5f5f5; 
+  padding:40px; 
+  display:flex; 
+  justify-content:center;
+}
+.container { 
+  width:100%;
+  max-width:850px; 
+  background:#fff; 
+  padding:40px; 
+  border-radius:12px; 
+  box-shadow:0 5px 20px rgba(0,0,0,0.1);
+}
+h2 { 
+  text-align:center; 
+  margin-bottom:30px; 
+  color:#000; 
+  letter-spacing:0.5px;
+}
+label { 
+  display:block; 
+  margin-bottom:8px; 
+  font-weight:600; 
+  color:#333;
+}
 .required { color:red; }
-.row { display:flex; gap:20px; flex-wrap:wrap; }
-.col { flex:1; min-width:48%; }
 
-input, select { width:100%; padding:10px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc; font-size:1rem; }
-.phone-input { display:flex; gap:5px; }
+.row { 
+  display:flex; 
+  justify-content:space-between; 
+  align-items:flex-start;
+  gap:40px;
+  margin-bottom:30px;
+}
+.col { 
+  flex:1; 
+  min-width:47%;
+}
+
+input, select { 
+  width:100%; 
+  padding:10px 12px; 
+  border-radius:6px; 
+  border:1px solid #ccc; 
+  font-size:1rem; 
+  background-color:#fafafa;
+  box-sizing:border-box;
+}
+input:focus, select:focus {
+  outline:none;
+  border-color:#000;
+  background-color:#fff;
+}
+
+.phone-input { display:flex; gap:15px; }
 .phone-input select { width:35%; }
 .phone-input input { width:65%; }
 
-button, .location-btn { width:100%; padding:12px; border:none; border-radius:6px; background:#000; color:#fff; font-size:1rem; cursor:pointer; margin-bottom:10px; }
+button, .location-btn { 
+  width:100%; 
+  padding:12px; 
+  border:none; 
+  border-radius:6px; 
+  background:#000; 
+  color:#fff; 
+  font-size:1rem; 
+  cursor:pointer; 
+  margin-top:10px;
+  transition:all 0.3s ease;
+}
 button:hover, .location-btn:hover { background:#333; }
 
-.back-link { display:block; margin-top:15px; text-align:center; }
+.back-link { 
+  display:block; 
+  margin-top:20px; 
+  text-align:left; 
+  color:#000; 
+  font-weight:600; 
+}
+
 
 /* Mobile Responsive */
 @media(max-width:600px){
-  .row { flex-direction:column; }
+  .row { flex-direction:column; gap:15px; }
   .col { min-width:100%; }
+  .default-container { justify-content:flex-start; }
 }
 </style>
 </head>
@@ -47,11 +113,13 @@ button:hover, .location-btn:hover { background:#333; }
 <form method="POST">
 {% csrf_token %}
 
-<!-- Full Width -->
-<label>Full Name <span class="required">*</span></label>
-<input type="text" name="fullname" value="{{ address.fullname|default:'' }}" required>
+<div class="row">
+  <div class="col">
+    <label>Full Name <span class="required">*</span></label>
+    <input type="text" name="fullname" value="{{ address.fullname|default:'' }}" required>
+  </div>
+</div>
 
-<!-- Row 1 -->
 <div class="row">
   <div class="col">
     <label>Mobile Number <span class="required">*</span></label>
@@ -62,16 +130,17 @@ button:hover, .location-btn:hover { background:#333; }
         <option value="+44">🇬🇧 +44</option>
         <option value="+61">🇦🇺 +61</option>
       </select>
-      <input type="tel" name="mobile" value="{{ address.mobile|default:'' }}" required>
+      <input type="tel" id="mobile" name="mobile" maxlength="10" pattern="[0-9]{10}" value="{{ address.mobile|default:'' }}" required>
     </div>
+    <small id="mobile-error" style="color:red; font-size:13px;"></small>
   </div>
+
   <div class="col">
     <label>PIN Code <span class="required">*</span></label>
     <input type="text" id="pincode" name="pincode" maxlength="6" value="{{ address.pincode|default:'' }}" required>
   </div>
 </div>
 
-<!-- Row 2 -->
 <div class="row">
   <div class="col">
     <label>Address Line 1 <span class="required">*</span></label>
@@ -79,23 +148,21 @@ button:hover, .location-btn:hover { background:#333; }
   </div>
   <div class="col">
     <label>Address Line 2 <span class="required">*</span></label>
-    <input type="text" id="address2" name="address2"placeholder="Colony, Locality, Landmark " value="{{ address.address2|default:'' }}" required>
+    <input type="text" id="address2" name="address2" placeholder="Colony, Locality, Landmark" value="{{ address.address2|default:'' }}" required>
   </div>
 </div>
 
-<!-- Row 3 -->
 <div class="row">
   <div class="col">
     <label>City <span class="required">*</span></label>
-    <input type="text" id="city" name="city"placeholder="Auto-filled or enter manually" value="{{ address.city|default:'' }}" required>
+    <input type="text" id="city" name="city" placeholder="Auto-filled or enter manually" value="{{ address.city|default:'' }}" required>
   </div>
   <div class="col">
     <label>State <span class="required">*</span></label>
-    <input type="text" id="state" name="state"placeholder="Auto-filled or enter manually" value="{{ address.state|default:'' }}" required>
+    <input type="text" id="state" name="state" placeholder="Auto-filled or enter manually" value="{{ address.state|default:'' }}" required>
   </div>
 </div>
 
-<!-- Row 4 -->
 <div class="row">
   <div class="col">
     <label>Country <span class="required">*</span></label>
@@ -109,13 +176,16 @@ button:hover, .location-btn:hover { background:#333; }
   </div>
   <div class="col">
     <label>Landmark</label>
-    <input type="text" id="landmark" name="landmark" placeholder="near by landmamrk"value="{{ address.landmark|default:'' }}">
+    <input type="text" id="landmark" name="landmark" placeholder="Near by landmark" value="{{ address.landmark|default:'' }}">
   </div>
 </div>
 
-<!-- Location Button & Submit -->
-<button type="button" class="location-btn" onclick="getLocation()"><i class="fa-solid fa-location-dot"></i> Use My Current Location</button>
+<button type="button" class="location-btn" onclick="getLocation()">
+  <i class="fa-solid fa-location-dot"></i> Use My Current Location
+</button>
 <p id="location-status"></p>
+
+
 
 <button type="submit">{% if address %}Update Address{% else %}Save Address{% endif %}</button>
 
@@ -124,9 +194,27 @@ button:hover, .location-btn:hover { background:#333; }
 <a href="{% url 'base:address_list' %}" class="back-link">Back to Address List</a>
 </div>
 
-
 <script>
-// Auto-fill City/State using Pincode (India)
+// ✅ Phone Number Validation 
+const mobileInput = document.getElementById("mobile");
+const error = document.getElementById("mobile-error");
+
+mobileInput.addEventListener("input", function () {
+  const val = mobileInput.value;
+  if (!/^\d*$/.test(val)) {
+    error.textContent = "Only digits allowed.";
+    mobileInput.value = val.replace(/\D/g, "");
+  } else if (val.length > 10) {
+    error.textContent = "Max 10 digits allowed.";
+    mobileInput.value = val.slice(0, 10);
+  } else if (val.length < 10 && val.length > 0) {
+    error.textContent = "Incomplete number.";
+  } else {
+    error.textContent = "";
+  }
+});
+
+// ✅ Auto-fill City/State using Pincode (India)
 document.getElementById("pincode").addEventListener("input", async function() {
   const pin = this.value;
   if(pin.length === 6){
@@ -139,7 +227,7 @@ document.getElementById("pincode").addEventListener("input", async function() {
   }
 });
 
-// Fetch Location & Autofill
+// ✅ Fetch Location & Autofill using OpenStreetMap
 async function getLocation(){
   const status = document.getElementById("location-status");
   if(navigator.geolocation){
@@ -149,8 +237,8 @@ async function getLocation(){
       const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`);
       const data = await res.json();
       document.getElementById("address1").value = data.address.house_number || data.address.road || "";
-      document.getElementById("address2").value = data.address.suburb || data.address.neighbourhood || "";
-      document.getElementById("city").value = data.address.city || data.address.town || "";
+      document.getElementById("address2").value = data.address.suburb || data.address.neighbourhood || data.address.locality || "";
+      document.getElementById("city").value = data.address.city || data.address.town || data.address.village || "";
       document.getElementById("state").value = data.address.state || "";
       document.getElementById("pincode").value = data.address.postcode || "";
       status.textContent = "Location filled!";
