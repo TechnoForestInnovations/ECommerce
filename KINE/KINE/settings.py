@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'address',
     'rest_framework',
     'orders',
+    'profile',
 ]
 
 MIDDLEWARE = [
@@ -143,3 +144,12 @@ FAST2SMS_API_KEY = "Sv9MoCRq6tuT4Fla1erpJxWdIOE08LNhfbBQwnyYKiXzm5cUV2Fg7zHGLd0k
 
 RAZORPAY_KEY_ID = "rzp_test_RV1zvVwry7Wo8O"
 RAZORPAY_KEY_SECRET = "9WED8m2OuuAJv8VpKGrurJ5M"
+
+#
+# LOGIN_URL = 'login'
+# LOGIN_REDIRECT_URL = 'profile'
+# LOGOUT_REDIRECT_URL = 'login'
+#
+# DEFAULT_AUTO_FIELD = 'django.
+#
+# db.models.BigAutoField'
