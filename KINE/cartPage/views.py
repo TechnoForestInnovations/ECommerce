@@ -11,7 +11,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import authenticate, login as auth_login
 from django.views.decorators.csrf import csrf_exempt
-
+from tomlkit import item
+from app.models import Product, ProductStock
 # -------------------------------
 # Python Imports
 # -------------------------------
@@ -54,7 +55,9 @@ def add_to_cart(request):
         product = get_object_or_404(Product, id=product_id)
         size = get_object_or_404(Size, id=size_id)   # 🔥 ALWAYS SAFE
         is_available_for_cod = product.is_available_for_cod
-
+        stock=ProductStock.objects.filter(product=product, size=size).first()
+        if stock.stock < quantity:
+            return JsonResponse({'success': False, 'message': 'Requested quantity not available in stock'})
         cart_item, created = CartItem.objects.get_or_create(
             user=request.user,
             product=product,
@@ -105,6 +108,9 @@ def cart(request):
     for item in cart_items:
         item.subtotal = item.price * item.quantity
         total_items += item.quantity
+        stock_record = ProductStock.objects.filter(product=item.product, size__code__iexact=item.size.strip() ).first()
+        item.stock = stock_record.stock if stock_record else 0
+    
         if not item.is_available_for_cod:
             all_items_eligible_for_cod = False
 

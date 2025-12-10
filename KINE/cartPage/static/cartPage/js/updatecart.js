@@ -31,6 +31,19 @@ document.addEventListener("click", async (e) => {
         } else {
             qtyDisplay.textContent = currentQty;
         }
+        // After updating quantity
+        const qtySpan = document.getElementById(`qty-${itemId}`);
+        const newQty = parseInt(qtySpan.textContent);
+
+        const increaseBtn = document.querySelector(`.increase[data-id="${itemId}"]`);
+        const stock = parseInt(increaseBtn.dataset.stock);
+
+        // Disable + button if stock reached
+        if (newQty >= stock) {
+            increaseBtn.disabled = true;
+        } else {
+            increaseBtn.disabled = false;
+        }
 
         // ✅ Wait for backend update to complete before refreshing summary
         await updateCart(itemId, action);

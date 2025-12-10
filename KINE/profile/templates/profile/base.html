@@ -6,17 +6,18 @@
   <title>{% block title %}Profile Page{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'base/css/style.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+      <link rel="stylesheet" href="{% static 'landing/css/style.css' %}">
+    <!-- Link to Font Awesome for icons (cart, user, menu, etc.) -->
   <script src="{% static 'base/js/profile.js' %}" defer></script>
+  <style>
+    main{
+      margin-top: 90px;
+    }
+  </style>
 </head>
 <body>
-  <header class="header">
-    <div class="header-left">Profile Dashboard</div>
-    <div class="header-right">
-      <span>{{ request.user.username }} </span>
-      <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
-    </div>
-  </header>
+  {% include 'landing/header.html' %}
   <main>{% block content %}{% endblock %}</main>
+  {% include 'landing/footer.html' %}
 </body>
 </html>

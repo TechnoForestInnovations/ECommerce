@@ -21,11 +21,12 @@ class CartItem(models.Model):
     size = models.CharField(max_length=20, default='Medium')
     quantity = models.PositiveIntegerField(default=1)  # Quantity in cart
     is_available_for_cod = models.BooleanField(default=True)
+    stock = models.PositiveIntegerField(default=0)  # Available stock for this item
     def subtotal(self):
         """Return total price for this cart item"""
         return self.price * self.quantity
 
     def __str__(self):
         user_info = f"{self.user.username}'s" if self.user else "Guest"
-        return f"{user_info} CartItem: {self.name} ({self.quantity})"
+        return f"{user_info} CartItem: {self.name} ({self.quantity}) - Size: {self.size} - Stock: {self.stock}"
 
