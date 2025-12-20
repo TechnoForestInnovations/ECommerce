@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Product, Size, ProductStock, Season , ProductImage
+from .models import Product, Size, ProductStock, Season, ProductImage, Category , ProductType
+
 
 @admin.register(Size)
 class SizeAdmin(admin.ModelAdmin):
@@ -8,6 +9,15 @@ class SizeAdmin(admin.ModelAdmin):
 @admin.register(Season)
 class SeasonAdmin(admin.ModelAdmin):
     list_display = ('name',)
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+
+@admin.register(ProductType)
+class ProductTypeAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+
 
 class ProductStockInline(admin.TabularInline):
     model = ProductStock
@@ -19,9 +29,9 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'is_available_for_cod', 'season', 'created_at','image_url')
+    list_display = ('name', 'price', 'is_available_for_cod', 'season', 'product_type','category' ,'created_at','image_url')
     inlines = [ProductStockInline,ProductImageInline]
-    list_filter = ('season',)
+    list_filter = ('season','product_type','category')
     search_fields = ('name',)
 
 @admin.register(ProductStock)

@@ -29,7 +29,7 @@ def add_address(request):
             pincode=pincode
         )
         messages.success(request, "Address saved successfully!")
-        return redirect("cartPage")
+        return redirect("cartPage:cartPage")
     
     return render(request, "orders/add_address.html")
 

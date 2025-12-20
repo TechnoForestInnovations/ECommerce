@@ -7,7 +7,7 @@ class TaxesAndCharges(models.Model):
     min_amount_for_free_delivery = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     def __str__(self):
         return f"TaxesAndCharges (Tax: {self.tax}%, Delivery: {self.delivery_charges}, Min Free Delivery: {self.min_amount_for_free_delivery})"
-from app.models import Product
+from app.models import Product,Size
 
 class CartItem(models.Model):
     # Link cart item to a specific user
@@ -18,7 +18,7 @@ class CartItem(models.Model):
     name = models.CharField(max_length=200)       # Product name
     price = models.DecimalField(max_digits=10, decimal_places=2)  # Product price
     color = models.CharField(max_length=50)       # Color of the product
-    size = models.CharField(max_length=20, default='Medium')
+    size = models.ForeignKey(Size, null=True, on_delete=models.SET_NULL)
     quantity = models.PositiveIntegerField(default=1)  # Quantity in cart
     is_available_for_cod = models.BooleanField(default=True)
     def subtotal(self):
@@ -28,4 +28,3 @@ class CartItem(models.Model):
     def __str__(self):
         user_info = f"{self.user.username}'s" if self.user else "Guest"
         return f"{user_info} CartItem: {self.name} ({self.quantity})"
-

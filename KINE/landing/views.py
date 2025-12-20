@@ -29,23 +29,6 @@ def landing(request):
     categories = Category.objects.filter(is_enabled=True).order_by('order')
     return render(request, "registration/landing.html", {'categories': categories})
 
-# -------------------------------
-# Pages
-# -------------------------------
-def shop_by_season(request):
-    return render(request, 'cartPage/shopbyseason.html')
-
-def high_vibes(request):
-    return render(request, 'cartPage/highvibes.html')
-
-def low_vibes(request):
-    return render(request, 'cartPage/lowvibes.html')
-
-def accessories(request):
-    return render(request, 'cartPage/accessories.html')
-
-def shop_now(request):
-    return render(request, 'cartPage/shopnow.html')
 
 def logout_page(request):
     auth.logout(request)

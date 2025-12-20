@@ -8,10 +8,10 @@
 
         <!-- Center navigation links (visible on desktop) -->
         <nav class="header-center" aria-label="Main navigation">
-            <a href="{% url 'shop_by_season' %}">Shop By Season</a>
-                <a href="{% url 'high_vibes' %}">High Vibes</a>
-            <a href="{% url 'low_vibes' %}">Low Vibes</a>
-            <a href="{% url 'accessories' %}">Accessories</a>
+            <a href="{% url 'season_shop' %}">Shop By Season</a>
+            <a href="{% url 'product_type_shop' %}">High Vibes</a>
+            <a href="{% url 'category_shop' %}">Low Vibes</a>
+            <a href="{% url 'accessories_shop' %}">Accessories</a>
         </nav>
 
         <!-- Right side of the header -->
@@ -28,7 +28,7 @@
             </a>
 
             <!-- Cart icon (desktop only) -->
-            <a href="{% url 'cartPage' %}" class="cart-icon" aria-label="View Cart">
+            <a href="{% url 'cartPage:cartPage' %}" class="cart-icon" aria-label="View Cart">
                 <i class="fas fa-shopping-cart"></i>
             </a>
 
@@ -55,7 +55,7 @@
                 <a href="{% url 'address:address_list' %}">Saved Addresses</a>
                 <hr>
                 <a href="{% url 'profile' %}">Edit Profile</a>
-                <a href="{% url 'logout' %}">Logout</a>
+                <a href="{% url 'logout1' %}">Logout</a>
             </div>
             </div>
             {% else %}
@@ -90,15 +90,15 @@
                 {% endif %}
 
                 <!-- Main shop links (always visible) -->
-                <a href="{% url 'shop_by_season' %}">Shop By Season</a>
-                <a href="{% url 'high_vibes' %}">High Vibes</a>
-                <a href="{% url 'low_vibes' %}">Low Vibes</a>
-                <a href="{% url 'accessories' %}">Accessories</a>
+                <a href="{% url 'season_shop' %}">Shop By Season</a>
+                <a href="{% url 'product_type_shop' %}">High Vibes</a>
+                <a href="{% url 'category_shop' %}">Low Vibes</a>
+                <a href="{% url 'accessories_shop' %}">Accessories</a>
 
                 {% if user.is_authenticated %}
                 <!-- Extra cart link for mobile (outside profile dropdown) -->
                 <a href="{% url 'wishlist_view' %}">Wishlist</a>
-                <a href="{% url 'cartPage' %}">Cart</a>
+                <a href="{% url 'cartPage:cartPage' %}">Cart</a>
                 <a class="mobile-logout" href="{% url 'logout' %}">Logout</a>
 
                 {% else %}
