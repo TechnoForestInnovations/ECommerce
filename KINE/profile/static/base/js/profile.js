@@ -1,87 +1,201 @@
 document.addEventListener("DOMContentLoaded", () => {
   // === Elements ===
-  const editBtn = document.getElementById("edit-btn");
+  const editBtns = document.querySelectorAll(".edit-btn");
   const saveBtn = document.getElementById("save-btn");
+  const discardBtns = document.querySelectorAll(".discard-btn");
   const nameInput = document.getElementById("name");
   const emailInput = document.getElementById("email");
   const errorEl = document.getElementById("profile-error");
   const successEl = document.getElementById("profile-success");
 
-  const avatarInput = document.getElementById("avatar-input");
-  const avatarImg = document.getElementById("avatar-img");
-
   const modal = document.getElementById("passwordModal");
-  const passwordBtn = document.getElementById("password-btn");
+  const passwordBtns = document.querySelectorAll(".password-btn");
   const closeModal = document.querySelector(".close");
   const passwordForm = document.getElementById("passwordForm");
 
-  // === Edit / Save Profile ===
-  editBtn.addEventListener("click", () => {
+  // Store initial values for discard
+  let initialName = nameInput ? nameInput.value : "";
+  let initialEmail = emailInput ? emailInput.value : "";
+
+  /* ===========================
+        HELPER FUNCTIONS
+  =========================== */
+
+  function switchToEditMode() {
+    if (!nameInput || !emailInput) return;
+
     nameInput.disabled = false;
     emailInput.disabled = false;
-    saveBtn.style.display = "inline-block";
-    editBtn.style.display = "none";
+
+    nameInput.focus();
+
+    // Focus styles
+    nameInput.style.border = "1px solid #a6b3f2";
+    nameInput.style.boxShadow = "0 0 10px #a6b3f2";
+    nameInput.style.backgroundColor = "#ffffff";
+
+    emailInput.style.border = "1px solid #a6b3f2";
+    emailInput.style.boxShadow = "0 0 10px #a6b3f2";
+    emailInput.style.backgroundColor = "#ffffff";
+
+    // Show save + discard using inline style
+    if (saveBtn) saveBtn.style.display = "inline-block";
+    discardBtns.forEach(btn => {
+      btn.style.display = "inline-block";
+    });
+
+    // Hide all edit buttons (desktop + mobile)
+    editBtns.forEach(btn => {
+      btn.style.display = "none";
+    });
+
     errorEl.textContent = "";
     successEl.textContent = "";
+  }
+
+  function resetFormUI() {
+    if (!nameInput || !emailInput) return;
+
+    nameInput.disabled = true;
+    emailInput.disabled = true;
+
+    // Reset to normal styles
+    nameInput.style.border = "1px solid var(--border)";
+    nameInput.style.boxShadow = "none";
+    nameInput.style.backgroundColor = "#f9fafb";
+
+    emailInput.style.border = "1px solid var(--border)";
+    emailInput.style.boxShadow = "none";
+    emailInput.style.backgroundColor = "#f9fafb";
+
+    // Hide save + discard via inline style
+    if (saveBtn) saveBtn.style.display = "none";
+    discardBtns.forEach(btn => {
+      // Clear inline style so CSS (desktop/mobile) can decide
+      btn.style.display = "";
+    });
+
+    // IMPORTANT: clear inline display so your CSS desktop/mobile
+    // rules decide which edit button is visible.
+    editBtns.forEach(btn => {
+      btn.style.display = "";
+    });
+  }
+
+  /* ===========================
+        EDIT BUTTONS
+  =========================== */
+
+  editBtns.forEach(btn => {
+    btn.addEventListener("click", switchToEditMode);
   });
 
-  saveBtn.addEventListener("click", async () => {
-    errorEl.textContent = "";
-    successEl.textContent = "";
+  /* ===========================
+        DISCARD BUTTONS
+  =========================== */
 
-    const formData = new FormData();
-    formData.append("name", nameInput.value);
-    formData.append("email", emailInput.value);
-    formData.append("csrfmiddlewaretoken", document.querySelector("[name=csrfmiddlewaretoken]").value);
+  discardBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      // Reset values
+      nameInput.value = initialName;
+      emailInput.value = initialEmail;
 
-    try {
-      const response = await fetch("/ajax/save-profile/", {
-        method: "POST",
-        body: formData,
-      });
+      resetFormUI();
+      errorEl.textContent = "";
+      successEl.textContent = "";
+    });
+  });
 
-      const data = await response.json();
+  /* ===========================
+        SAVE PROFILE (AJAX)
+  =========================== */
 
-      if (data.success) {
-        successEl.textContent = data.message || "Profile updated successfully.";
-        nameInput.disabled = true;
-        emailInput.disabled = true;
-        saveBtn.style.display = "none";
-        editBtn.style.display = "inline-block";
-      } else {
-        errorEl.textContent = data.error || "Enter valid email";
+  if (saveBtn) {
+    saveBtn.addEventListener("click", async () => {
+      errorEl.textContent = "";
+      successEl.textContent = "";
+
+      const formData = new FormData();
+      formData.append("name", nameInput.value);
+      formData.append("email", emailInput.value);
+      formData.append(
+        "csrfmiddlewaretoken",
+        document.querySelector("[name=csrfmiddlewaretoken]").value
+      );
+
+      try {
+        const response = await fetch("/ajax/save-profile/", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          successEl.textContent = data.message || "Profile updated successfully.";
+          initialName = nameInput.value;
+          initialEmail = emailInput.value;
+          // Lock fields again
+          resetFormUI();
+
+          // Update username in mobile view
+          const mobileViewUserName = document.querySelector("#mobile_username");
+          if (mobileViewUserName) {
+            mobileViewUserName.textContent = "Hello " + nameInput.value;
+          }
+
+          // Update username in header profile menu
+          const headerUserName = document.querySelector(".profile-menu .user-name");
+          if (headerUserName) {
+            headerUserName.textContent = "Hello " + nameInput.value;
+          }
+          // Optional: if server returns canonical name/email, prefer that
+          if (data.name) {
+            nameInput.value = data.name;
+            initialName = data.name;
+          }
+          if (data.email) {
+            emailInput.value = data.email;
+            initialEmail = data.email;
+          }
+        } else {
+          errorEl.textContent = data.error || "Enter valid email";
+        }
+      } catch {
+        errorEl.textContent = "Error updating profile. Try again.";
       }
-    } catch {
-      errorEl.textContent = "Error updating profile. Try again.";
+    });
+  }
+
+  /* ===========================
+        PASSWORD MODAL
+  =========================== */
+
+  passwordBtns.forEach(btn =>
+    btn.addEventListener("click", () => {
+      modal.style.display = "block";
+    })
+  );
+
+  closeModal.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  window.addEventListener("click", e => {
+    if (e.target === modal) {
+      modal.style.display = "none";
     }
   });
 
-  // === Avatar Upload ===
-  avatarInput.addEventListener("change", async () => {
-    const formData = new FormData();
-    formData.append("avatar", avatarInput.files[0]);
-    formData.append("csrfmiddlewaretoken", document.querySelector("[name=csrfmiddlewaretoken]").value);
+  /* ===========================
+        PASSWORD STRENGTH
+  =========================== */
 
-    const response = await fetch("/ajax/upload-avatar/", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await response.json();
-    if (data.success) avatarImg.src = data.avatar_url;
-  });
-
-  // === Password Modal Handling ===
-  passwordBtn.addEventListener("click", () => (modal.style.display = "block"));
-  closeModal.addEventListener("click", () => (modal.style.display = "none"));
-  window.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
-
-  // === Password Strength Indicator ===
   const newPassInput = document.getElementById("new_password1");
   const strengthBar = document.getElementById("password-strength-bar");
   const strengthText = document.getElementById("strength-text");
 
-  if (newPassInput) {
+  if (newPassInput && strengthBar && strengthText) {
     newPassInput.addEventListener("input", () => {
       const val = newPassInput.value;
       let strength = 0;
@@ -114,53 +228,67 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // === Change Password (AJAX) ===
-  passwordForm.addEventListener("submit", async e => {
-    e.preventDefault();
-    const errorEl = document.getElementById("password-error");
-    const successEl = document.getElementById("password-success");
-    errorEl.textContent = "";
-    successEl.textContent = "";
+  /* ===========================
+        CHANGE PASSWORD (AJAX)
+  =========================== */
 
-    const response = await fetch("/ajax/change-password/", {
-      method: "POST",
-      body: new URLSearchParams(new FormData(passwordForm)),
-      headers: { "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value },
-    });
+  if (passwordForm) {
+    passwordForm.addEventListener("submit", async e => {
+      e.preventDefault();
 
-    const data = await response.json();
-    if (data.success) {
-      successEl.textContent = data.message || "Password changed successfully!";
-      passwordForm.reset();
-      strengthBar.style.width = "0%";
-      strengthText.textContent = "";
-      setTimeout(() => (modal.style.display = "none"), 1500);
-    } else {
-      errorEl.textContent =
-        data.error || "Password must be 8+ chars with uppercase, lowercase, number & special character";
-    }
-  });
+      const pwdErrorEl = document.getElementById("password-error");
+      const pwdSuccessEl = document.getElementById("password-success");
+      pwdErrorEl.textContent = "";
+      pwdSuccessEl.textContent = "";
 
-  // === Show/Hide Password Toggle (Now Inside DOMContentLoaded) ===
-  document.querySelectorAll(".toggle-password").forEach(icon => {
-    icon.addEventListener("click", function () {
-      const inputId = this.getAttribute("data-target");
-      const input = document.getElementById(inputId);
-      if (!input) return;
+      const response = await fetch("/ajax/change-password/", {
+        method: "POST",
+        body: new URLSearchParams(new FormData(passwordForm)),
+        headers: {
+          "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+        },
+      });
 
-      if (input.type === "password") {
-        input.type = "text";
-        this.classList.add("active");
-        this.classList.remove("fa-eye");
-        this.classList.add("fa-eye-slash");
-        this.setAttribute("title", "Hide Password");
+      const data = await response.json();
+
+      if (data.success) {
+        pwdSuccessEl.textContent = data.message || "Password changed successfully!";
+        passwordForm.reset();
+        if (strengthBar) strengthBar.style.width = "0%";
+        if (strengthText) strengthText.textContent = "";
+
+        setTimeout(() => (modal.style.display = "none"), 1500);
       } else {
-        input.type = "password";
-        this.classList.remove("active");
-        this.classList.remove("fa-eye-slash");
-        this.classList.add("fa-eye");
-        this.setAttribute("title", "Show Password");
+        pwdErrorEl.textContent =
+          data.error ||
+          "Password must be 8+ chars with uppercase, lowercase, number & special character";
       }
     });
-  });
+  }
+
+  /* ===========================
+        AUTO CLEAR SUCCESS MSGS
+  =========================== */
+
+  function autoClearMessage(id, timeout) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const observer = new MutationObserver(() => {
+      if (el.textContent.trim() !== "") {
+        setTimeout(() => {
+          el.textContent = "";
+        }, timeout);
+      }
+    });
+
+    observer.observe(el, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+    });
+  }
+
+  autoClearMessage("profile-success", 4000);
+  autoClearMessage("password-success", 4000);
 });

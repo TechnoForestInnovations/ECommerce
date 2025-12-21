@@ -69,7 +69,12 @@
                             <span>Quantity:</span>
                             <button class="qty-btn decrease" data-id="{{ item.id }}">-</button>
                             <span class="quantity-value" id="qty-{{ item.id }}">{{ item.quantity }}</span>
-                            <button class="qty-btn increase" data-id="{{ item.id }}">+</button>
+                            <button class="qty-btn increase" 
+                                    data-id="{{ item.id }}" 
+                                    data-stock="{{ item.stock }}"
+                                    {% if item.quantity >= item.stock %}disabled{% endif %}>
+                                +
+                            </button>
                         </div>
                         <div class="cart-item-subtotal" id="subtotal-{{ item.id }}">
                             ₹{{ item.subtotal|floatformat:2 }}

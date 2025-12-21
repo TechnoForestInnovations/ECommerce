@@ -7,5 +7,4 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
     path('ajax/save-profile/', views.ajax_save_profile, name='ajax_save_profile'),
     path('ajax/change-password/', views.ajax_change_password, name='ajax_change_password'),
-    path('ajax/upload-avatar/', views.ajax_avatar_upload, name='ajax_avatar_upload'),
 ]
