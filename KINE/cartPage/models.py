@@ -28,9 +28,9 @@ class CartItem(models.Model):
 
     def __str__(self):
         user_info = f"{self.user.username}'s" if self.user else "Guest"
-<<<<<<< HEAD
+# <<<<<<< HEAD
         return f"{user_info} CartItem: {self.name} ({self.quantity})"
-=======
+# =======
         return f"{user_info} CartItem: {self.name} ({self.quantity}) - Size: {self.size} - Stock: {self.stock}"
 
->>>>>>> 025ad7353ca71db9ed4fe07f4c1a9ab52b62df89
+# >>>>>>> 025ad7353ca71db9ed4fe07f4c1a9ab52b62df89

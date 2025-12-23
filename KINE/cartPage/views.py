@@ -56,19 +56,19 @@ def add_to_cart(request):
 
         # 1️⃣ Get product
         product = get_object_or_404(Product, id=product_id)
-<<<<<<< HEAD
+# <<<<<<< HEAD
 
         # 2️⃣ Get Size instance using ID
         size_instance = get_object_or_404(Size, id=size_id)
 
         # 3️⃣ Create or update CartItem
-=======
+# =======
         size = get_object_or_404(Size, id=size_id)   # 🔥 ALWAYS SAFE
         is_available_for_cod = product.is_available_for_cod
         stock=ProductStock.objects.filter(product=product, size=size).first()
         if stock.stock < quantity:
             return JsonResponse({'success': False, 'message': 'Requested quantity not available in stock'})
->>>>>>> 025ad7353ca71db9ed4fe07f4c1a9ab52b62df89
+# >>>>>>> 025ad7353ca71db9ed4fe07f4c1a9ab52b62df89
         cart_item, created = CartItem.objects.get_or_create(
             user=request.user,
             product=product,
