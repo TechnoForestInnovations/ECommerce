@@ -28,7 +28,11 @@ def home(request):
 def landing(request):
     categories = Category.objects.filter(is_enabled=True).order_by('order')
     return render(request, "registration/landing.html", {'categories': categories})
-
+def update_username(request):
+    mobile_view_user_name=getElementByClassName("user-name")
+    mobile_view_user_name.innerHTML=request.user.username
+    return JsonResponse({"success": True})
+    
 # -------------------------------
 # Pages
 # -------------------------------

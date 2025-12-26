@@ -125,7 +125,7 @@ def signup(request):
 
         if entered_otp == otp_data["otp"]:
             User.objects.create_user(
-                username=contact,
+                username=otp_data["data"]["full_name"],
                 first_name=otp_data["data"]["full_name"],
                 email=contact if otp_data["data"]["is_email"] else "",
                 password=otp_data["data"]["password"]

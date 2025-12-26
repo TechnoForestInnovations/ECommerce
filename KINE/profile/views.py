@@ -43,7 +43,7 @@ def ajax_save_profile(request):
         if not re.match(email_regex, email):
             return JsonResponse({'success': False, 'error': 'Enter valid email'})
 
-        request.user.first_name = name
+        request.user.username = name
         request.user.email = email
         request.user.save()
         return JsonResponse({'success': True, 'message': 'Profile updated successfully.'})
