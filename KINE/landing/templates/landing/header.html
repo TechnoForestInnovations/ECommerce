@@ -6,6 +6,15 @@
     <a href="{% url 'product_list' %}" class="logo">FS Club</a>
   </div>
 
+<<<<<<< HEAD
+        <!-- Center navigation links (visible on desktop) -->
+        <nav class="header-center" aria-label="Main navigation">
+            <a href="{% url 'season_shop' %}">Shop By Season</a>
+            <a href="{% url 'product_type_shop' %}">High Vibes</a>
+            <a href="{% url 'category_shop' %}">Low Vibes</a>
+            <a href="{% url 'accessories_shop' %}">Accessories</a>
+        </nav>
+=======
   <!-- Center navigation links (visible on desktop) -->
   <nav class="header-center" aria-label="Main navigation">
     <a href="{% url 'shop_by_season' %}">Shop By Season</a>
@@ -13,6 +22,7 @@
     <a href="{% url 'low_vibes' %}">Low Vibes</a>
     <a href="{% url 'accessories' %}">Accessories</a>
   </nav>
+>>>>>>> 025ad7353ca71db9ed4fe07f4c1a9ab52b62df89
 
   <!-- Right side of the header -->
   <div class="header-right">
@@ -27,10 +37,17 @@
       <i class="fas fa-heart"></i>
     </a>
 
+<<<<<<< HEAD
+            <!-- Cart icon (desktop only) -->
+            <a href="{% url 'cartPage:cartPage' %}" class="cart-icon" aria-label="View Cart">
+                <i class="fas fa-shopping-cart"></i>
+            </a>
+=======
     <!-- Cart icon (desktop only) -->
     <a href="{% url 'cartPage' %}" class="cart-icon" aria-label="View Cart">
       <i class="fas fa-shopping-cart"></i>
     </a>
+>>>>>>> 025ad7353ca71db9ed4fe07f4c1a9ab52b62df89
 
 
 
@@ -47,6 +64,22 @@
         <hr>
         <a href="{% url 'order_history' %}">Orders</a>
 
+<<<<<<< HEAD
+                <a href="{% url 'wishlist_view' %}">Wishlist</a>
+                <a href="#" id="contact-us">Contact Us</a>
+                <hr>
+                <a href="#">Track your order</a>
+                <a href="{% url 'address:address_list' %}">Saved Addresses</a>
+                <hr>
+                <a href="{% url 'profile' %}">Edit Profile</a>
+                <a href="{% url 'logout1' %}">Logout</a>
+            </div>
+            </div>
+            {% else %}
+            <!-- ============================ -->
+            <!-- When the user is NOT logged in -->
+            <!-- ============================ -->
+=======
         <a href="{% url 'wishlist_view' %}">Wishlist</a>
         <a href="#" id="contact-us">Contact Us</a>
         <hr>
@@ -61,6 +94,7 @@
     <!-- ============================ -->
     <!-- When the user is NOT logged in -->
     <!-- ============================ -->
+>>>>>>> 025ad7353ca71db9ed4fe07f4c1a9ab52b62df89
 
     <!-- Show Signup/Login button instead of cart/wishlist/profile -->
     <a class="signup-button login" href="{% url 'base:login' %}">Login/SignUp</a>
@@ -103,6 +137,19 @@
       <a href="{% url 'profile' %}">Edit Profile</a>
       <a class="mobile-logout" href="{% url 'logout' %}">Logout</a>
 
+<<<<<<< HEAD
+                <!-- Main shop links (always visible) -->
+                <a href="{% url 'season_shop' %}">Shop By Season</a>
+                <a href="{% url 'product_type_shop' %}">High Vibes</a>
+                <a href="{% url 'category_shop' %}">Low Vibes</a>
+                <a href="{% url 'accessories_shop' %}">Accessories</a>
+
+                {% if user.is_authenticated %}
+                <!-- Extra cart link for mobile (outside profile dropdown) -->
+                <a href="{% url 'wishlist_view' %}">Wishlist</a>
+                <a href="{% url 'cartPage:cartPage' %}">Cart</a>
+                <a class="mobile-logout" href="{% url 'logout' %}">Logout</a>
+=======
       {% else %}
       <!-- Show login/signup links for guests -->
       <a href="{% url 'base:login' %}" class="login">Login</a>
@@ -117,6 +164,7 @@
     position: relative;
     display: inline-block;
   }
+>>>>>>> 025ad7353ca71db9ed4fe07f4c1a9ab52b62df89
 
   .profile-icon {
     font-size: 24px;

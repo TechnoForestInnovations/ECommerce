@@ -351,7 +351,3 @@ async function placeSelectedOrder(selectedItems) {
         alert("❌ Error placing order. Try again.");
     }
 }
-
-
-
-

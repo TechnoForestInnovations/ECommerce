@@ -43,39 +43,52 @@ def get_tax_settings():
 
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
-@csrf_protect
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import CartItem, Product, Size
 @csrf_protect
 def add_to_cart(request):
     if request.method == 'POST' and request.user.is_authenticated:
 
         product_id = request.POST.get('product_id')
-        size_id = request.POST.get('size_id')
+        size_id = request.POST.get('size_id')  # numeric ID from AJAX
         quantity = int(request.POST.get('quantity', 1))
 
+        # 1️⃣ Get product
         product = get_object_or_404(Product, id=product_id)
+# <<<<<<< HEAD
+
+        # 2️⃣ Get Size instance using ID
+        size_instance = get_object_or_404(Size, id=size_id)
+
+        # 3️⃣ Create or update CartItem
+# =======
         size = get_object_or_404(Size, id=size_id)   # 🔥 ALWAYS SAFE
         is_available_for_cod = product.is_available_for_cod
         stock=ProductStock.objects.filter(product=product, size=size).first()
         if stock.stock < quantity:
             return JsonResponse({'success': False, 'message': 'Requested quantity not available in stock'})
+# >>>>>>> 025ad7353ca71db9ed4fe07f4c1a9ab52b62df89
         cart_item, created = CartItem.objects.get_or_create(
             user=request.user,
             product=product,
-            size=size,   # 🔥 FIXED
+            size=size_instance,  # assign Size instance
             defaults={
                 'image_url': product.image_url,
                 'name': product.name,
                 'price': product.price,
                 'color': product.color,
                 'quantity': quantity,
-                'is_available_for_cod': is_available_for_cod,
+                'is_available_for_cod': product.is_available_for_cod,
             }
         )
 
+        # 4️⃣ Update quantity if item already exists
         if not created:
             cart_item.quantity += quantity
             cart_item.save()
 
+        # 5️⃣ Total items in cart
         total_items = CartItem.objects.filter(user=request.user).count()
 
         return JsonResponse({
@@ -85,7 +98,6 @@ def add_to_cart(request):
         })
 
     return JsonResponse({'success': False, 'message': 'Failed to add to cart'})
-
 
 # ✅ CART PAGE
 def cart(request):
@@ -242,3 +254,16 @@ def _cart_summary_response(user, updated_item=None, removed=False):
         })
 
     return JsonResponse(response)
+
+
+def check_cart_item(request):
+    product_id = request.GET.get('product_id')
+    size_code = request.GET.get('size')  # string
+
+    exists = CartItem.objects.filter(
+        user=request.user,
+        product_id=product_id,
+        size=size_code
+    ).exists()
+
+    return JsonResponse({'exists': exists})
